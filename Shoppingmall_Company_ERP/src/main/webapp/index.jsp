@@ -16,7 +16,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- 타이틀 세팅 -->
-  <title>Starbucks Coffee Korea</title>
+  <title>타이틀4</title>
   <!-- 파비콘 세팅 -->
   <link rel="icon" href="./favicon.png" />
   <!-- 브라우저 스타일 초기화 -->
