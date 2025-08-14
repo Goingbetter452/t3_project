@@ -95,7 +95,7 @@
         <div class="bg-right"></div>
         <div class="inner">
           <div class="inner__left">
-            <h2>공지사항</h2>
+            <h2>공지사항22</h2>
             <div class="swiper-container">
               <!-- Additional required wrapper -->
               <div class="swiper-wrapper">
