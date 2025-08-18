@@ -24,4 +24,15 @@
 			
 			return conn;
 		}
+		// 자원 해제 메서드
+	    public static void close(ResultSet rs, PreparedStatement pstmt, Connection conn) {
+	        try { if (rs != null) rs.close(); } catch (Exception e) {}
+	        try { if (pstmt != null) pstmt.close(); } catch (Exception e) {}
+	        try { if (conn != null) conn.close(); } catch (Exception e) {}
+	    }
+
+	    // 오버로드 (ResultSet 필요 없는 경우)
+	    public static void close(PreparedStatement pstmt, Connection conn) {
+	        close(null, pstmt, conn);
+	    }
 	}
