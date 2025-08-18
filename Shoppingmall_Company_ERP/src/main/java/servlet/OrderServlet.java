@@ -1,6 +1,9 @@
-package com.company1;
+package servlet;
 import java.io.IOException;
 import java.sql.*;
+
+import com.company1.DBManager;
+
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -25,11 +28,7 @@ public class OrderServlet extends HttpServlet {
         }
     }
     
-    protected void doPost()
-    		throws ServletException, IOException {
-    	
     
-    }
     
 //2. POST 요청 처리 
 protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -57,7 +56,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         ResultSet rs = null;
 
         try {
-            conn = DBManager.getConnection();
+            conn = DBManager.getDBConnection();
             String sql = "SELECT * FROM orders ORDER BY order_date DESC";
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -84,7 +83,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
         try {
             int oid = Integer.parseInt(request.getParameter("oid"));
-            conn = DBManager.getConnection();
+            conn = DBManager.getDBConnection();
             String sql = "DELETE FROM orders WHERE oid=?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, oid);
@@ -111,7 +110,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             int cid = Integer.parseInt(request.getParameter("cid")); // 로그인한 회원 ID
 
-            conn = DBManager.getConnection();
+            conn = DBManager.getDBConnection();
             conn.setAutoCommit(false);
 
             // 1. 상품 가격 조회
