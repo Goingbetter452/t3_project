@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>쇼핑몰 회사 ERP 시스템</title>
+<title>쇼핑몰 회사 ERP 시스템2</title>
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
