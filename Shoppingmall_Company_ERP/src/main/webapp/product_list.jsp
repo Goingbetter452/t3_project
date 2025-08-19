@@ -64,7 +64,7 @@ try {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>상품 목록33</title>
+<title>상품 목록</title>
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
