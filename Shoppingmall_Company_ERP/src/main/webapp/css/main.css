@@ -19,7 +19,37 @@ header {
     border-bottom: 1px solid #e0e0e0;
     padding: 0 20px;
     box-sizing: border-box;
+    position: relative; /* ✨ 자식 요소의 위치 기준점이 되도록 설정 (한울추가)*/
 }
+
+
+/*---------------------------------------------*/
+/* 헤더 영역 중 "로그아웃" (한울 추가)*/ 
+
+
+
+.user-info {
+position: absolute; 
+right: 40px;      
+top: 50%;         
+transform: translateY(-50%) 
+}
+
+.user-info a {
+background-color: #007bff;
+color: white;
+padding: 8px 15px; /* 파란 여백 크기 */
+text-decoration: none;
+border-radius: 5px;
+font-weight: bold;
+font-size: 14px;
+white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+/*---------------------여기까지(한울)---------------*/
+
+
+
 
 /* 네비게이션 메뉴 컨테이너 */
 nav ul.main-menu {

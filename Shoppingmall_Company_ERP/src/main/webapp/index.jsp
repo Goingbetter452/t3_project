@@ -50,6 +50,8 @@
         <a href="product_add.jsp" class="btn btn-large">상품 추가</a>
         <a href="product_list.jsp" class="btn btn-large">상품 목록</a>
     </div>
+    
+    
 </div>
 </body>
 </html>
