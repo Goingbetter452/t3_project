@@ -52,7 +52,7 @@ public class ProductServlet extends HttpServlet {
         } catch (SQLException ex) {
             throw new ServletException(ex);
         }
-    }
+        }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -73,7 +73,7 @@ public class ProductServlet extends HttpServlet {
 
     private void listProducts(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException, ServletException {
-        List<Product> productList = productDAO.getAllProducts();
+        List<ProductDTO> productList = productDAO.getAllProducts();
         request.setAttribute("productList", productList);
         RequestDispatcher dispatcher = request.getRequestDispatcher("product_list.jsp");
         dispatcher.forward(request, response);
@@ -85,7 +85,7 @@ public class ProductServlet extends HttpServlet {
         double price = Double.parseDouble(request.getParameter("price"));
         int stock = Integer.parseInt(request.getParameter("stock"));
 
-        Product newProduct = new Product();
+        ProductDTO newProduct = new ProductDTO();
         newProduct.setPname(pname);
         newProduct.setPrice(price);
         newProduct.setStock(stock);
@@ -100,15 +100,17 @@ public class ProductServlet extends HttpServlet {
         response.sendRedirect("ProductServlet?action=list");
     }
 
+    // 상품 수정 폼을 보여주는 메소드
     private void editProductForm(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, ServletException, IOException {
         int pid = Integer.parseInt(request.getParameter("pid"));
-        Product existingProduct = productDAO.getProductById(pid);
+        ProductDTO existingProduct = productDAO.getProductById(pid); // 상품 ID로 상품 정보를 조회합니다.
         RequestDispatcher dispatcher = request.getRequestDispatcher("product_edit.jsp");
         request.setAttribute("product", existingProduct);
         dispatcher.forward(request, response);
     }
 
+    // 상품 정보를 수정하는 메소드
     private void updateProduct(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException {
         int pid = Integer.parseInt(request.getParameter("pid"));
@@ -116,7 +118,7 @@ public class ProductServlet extends HttpServlet {
         double price = Double.parseDouble(request.getParameter("price"));
         int stock = Integer.parseInt(request.getParameter("stock"));
 
-        Product product = new Product();
+        ProductDTO product = new ProductDTO();
         product.setPid(pid);
         product.setPname(pname);
         product.setPrice(price);
