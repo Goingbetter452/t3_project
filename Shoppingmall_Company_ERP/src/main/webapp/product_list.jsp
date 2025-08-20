@@ -65,6 +65,7 @@ try {
 <head>
 <meta charset="UTF-8">
 <title>상품 목록</title>
+
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
@@ -105,16 +106,19 @@ try {
             out.println("<div class='message error'>잘못된 요청입니다.</div>");
         }
     }
+  
     %>
 
     <!-- 검색 -->
-    <form method="get" action="product_list.jsp" style="text-align:center; margin-bottom:10px;">
-        <input type="text" name="search" value="<%= (search!=null)?search:"" %>" placeholder="상품명 검색">
-        <input type="submit" value="검색">
+  	<div class="search-box">
+    <form method="get" action="product_list.jsp">
+        <input type="text" name="search" value="<%= (search != null) ? search : "" %>" placeholder="상품명 검색" class="search-input">
+        <input type="submit" value="검색" class="search-button">
         <% if(search != null && !search.isEmpty()) { %>
-            <a href="product_list.jsp">전체보기</a>
+            <a href="product_list.jsp" class="reset-button">전체보기</a>
         <% } %>
     </form>
+	</div>
 
     <table class="product-table">
     <thead>

@@ -2,7 +2,7 @@ package com.company1.servlet;
 
 import com.company1.DBManager;
 import com.company1.dao.ProductDAO;
-import com.company1.dto.Product;
+import com.company1.dto.ProductDTO;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -19,14 +19,17 @@ import java.util.List;
 public class ProductServlet extends HttpServlet {
 
     private ProductDAO productDAO;
-
+    
+    // Servlet이 처음 로드될 때 ProductDAO 객체를 초기화합니다.
     public void init() {
         productDAO = new ProductDAO();
     }
-
+    
+    // 메모리에 Servlet 객체가 생성되면 init() 메소드가 호출되어 ProductDAO 객체를 초기화합니다.
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getParameter("action"); // action 파라미터를 통해 어떤 작업을 수행할지 결정합니다.
         if (action == null) {
             action = "list";
         }

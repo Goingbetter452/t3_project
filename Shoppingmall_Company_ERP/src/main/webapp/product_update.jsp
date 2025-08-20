@@ -11,13 +11,13 @@ String stockParam = request.getParameter("stock");
 
 // 유효성 검사
 if (pidParam == null || pname == null || priceParam == null || stockParam == null ||
-    pname.trim().isEmpty()) {
+    pname.trim().isEmpty()) { 
     response.sendRedirect("product_list.jsp");
     return;
 }
 
-try {
-    int pid = Integer.parseInt(pidParam);
+try { // 숫자 형변환 (하는 이유: jsp에서 파라미터는 String으로 오기 때문에)
+    int pid = Integer.parseInt(pidParam); 
     int price = Integer.parseInt(priceParam);
     int stock = Integer.parseInt(stockParam);
     
