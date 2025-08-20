@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="com.company1.dao.EmployeeDAO" %>
-<%@ page import="com.company1.dto.EmployeeDTO" %>
+<%@ page import="com.company1.dao.EmployeeDAO"%>
+<%@ page import="com.company1.dto.EmployeeDTO"%>
 <%
 	// --- 1. 페이지 모드(등록/수정)를 결정하는 Java코드 ---
 	String empId = request.getParameter("empId"); // URL에 empId가 있는지 확인
