@@ -24,25 +24,28 @@ ResultSet products = productStmt.executeQuery();
   <h2>주문 관리</h2>
 <!-- <a href="dashboard.jsp">대시보드</a><br><br> -->
  <h3>주문등록</h3>
- <form action="OrderServlet" method="post" >
+ <form action="<%= request.getContextPath() %>/OrderServlet" method="post" onsubmit="return confirm('주문을 등록하시겠습니까?');" >
   <input type="hidden" name="action" value="insert"/>
- 고객:
- <select name="cid" id="" required>
-  <option value=""></option>
- </select>
+    고객:
+    <select name="cid" id="" required>
+      <% while (customers.next()) { %>
+      <option value="<%= customers.getInt("cid") %>"><%= customers.getString("cname")%></option>
+    <% } %>
+    </select>
   
- 상품:
- <select name="pid" id="" required>
-  <option value=""></option>
- </select>
+    상품:
+    <select name="pid" id="" required>
+      <% while (products.next()) { %>
+          <option value="<%= products.getInt("pid") %>"><%= products.getString("pname")%></option>
+      <% } %>
+    </select>
 
   수량:
-  <input type="number" name=""quantity min="1" required />
-
+  <input type="number" name="quantity" min="1" required />
   <input type="submit" value="주문" />
-
+</form>
   <h3>주문 목록</h3>
-  <table>
+  <table border="">
     <tr>
       <th>주문번호</th>
         <th>고객명</th>
@@ -51,15 +54,32 @@ ResultSet products = productStmt.executeQuery();
         <th>주문일</th>
         <th>삭제</th>
     </tr>
+    <% 
+    try{
+      while (rs !=null && rs.next()) {
+        %>
     <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><%= rs.getInt("oid") %></td>
+      <td><%= rs.getString("cname") %></td>
+      <td><%= rs.getString("pname") %></td>
+      <td><%= rs.getInt("quantity") %></td>
+      <td><%= rs.getTimestamp("order_date") %></td>
+      <td><a href="<%= request.getContextPath() %><OrderServlet?action=delete&oid=<%= rs.getInt("oid") %>" onclick="return confirm('삭제하시겠습니까?');">삭제</a></td>
     </tr>
+    <%
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+       if (rs != null) rs.close();
+        if (customers != null) customers.close();
+        if (products != null) products.close();
+        if (customerStmt != null) customerStmt.close();
+        if (productStmt != null) productStmt.close();
+        if (conn != null) conn.close();
+    }
+    %>
   </table>
-</form>
+
 </body>
 </html>
