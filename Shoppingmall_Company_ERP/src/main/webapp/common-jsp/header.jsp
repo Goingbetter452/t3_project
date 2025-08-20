@@ -19,7 +19,6 @@
                     <ul class="dropdown-menu">
                         <li><a href="product_list.jsp">상품 목록</a></li>
                         <li><a href="product_add.jsp">상품 추가</a></li>
-                        <li><a href="product_main.jsp">상품 메인</a></li>
                     </ul>
                 </li>
                 <li><a href="order_list.jsp">주문 관리</a></li>

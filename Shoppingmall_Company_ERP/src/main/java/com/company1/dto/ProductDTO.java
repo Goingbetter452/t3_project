@@ -1,16 +1,16 @@
 package com.company1.dto;
 
-public class Product {
+public class ProductDTO {
     private int pid;
     private String pname;
     private double price;
     private int stock;
 
     // 기본 생성자
-    public Product() {}
+    public ProductDTO() {}
 
     // 생성자
-    public Product(String pname, double price, int stock) {
+    public ProductDTO(String pname, double price, int stock) {
         this.pname = pname;
         this.price = price;
         this.stock = stock;
