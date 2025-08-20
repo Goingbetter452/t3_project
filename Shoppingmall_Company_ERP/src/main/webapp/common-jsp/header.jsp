@@ -25,7 +25,12 @@
                 <li><a href="order_list.jsp">주문 관리</a></li>
                 <li><a href="#">그룹웨어</a></li>
             </ul>
+            
+            <div class="user-info">
+            	<a href="LogoutServlet">로그아웃</a>
+            </div>
         </nav>
+        
     </header>
 
 </body>
