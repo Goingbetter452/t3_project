@@ -8,8 +8,6 @@ import java.util.List;
 
 // 데이터베이스에 접속해 직원관련 SQL(추가, 조회, 수정, 삭제)을 실행하는 역할 담당 [ 쉽게 표현하면 해결사 ]
 public class EmployeeDAO {
-		// 모든 직원 목록 가져오기
-		public List<EmployeeDTO> selectAllemployees() { /* ... */ }
 		
 		
 		 /**
@@ -29,7 +27,7 @@ public class EmployeeDAO {
 		        String sql = "SELECT emp_id, emp_name, auth FROM employees WHERE emp_id = ? AND emp_pw = ?";
 	        
 		        try {
-		            conn = DBManager.getConnection(); // DBManager로부터 커넥션 획득
+		            conn = DBManager.getDBConnection(); // DBManager로부터 커넥션 획득
 		            pstmt = conn.prepareStatement(sql);
 		            pstmt.setString(1, empId);
 		            pstmt.setString(2, empPw);
@@ -57,34 +55,33 @@ public class EmployeeDAO {
 		     */
 		 
 		 public List<EmployeeDTO> selectAllEmployees() {
-		 List<EmployeeDTO> list = new ArrayList<>();
-		 Connection conn = null;
-			 PreparedStatement pstmt = null;
-	     ResultSet rs = null;
-	     String sql = "SELECT * FROM employees ORDER BY emp_id ASC";
+		     List<EmployeeDTO> list = new ArrayList<>();
+		     Connection conn = null;
+		     PreparedStatement pstmt = null;
+		     ResultSet rs = null;
+		     String sql = "SELECT * FROM employees ORDER BY emp_id ASC";
 			 
-	     try {
-		            conn = DBManager.getConnection();
-	            pstmt = conn.prepareStatement(sql);
-		            rs = pstmt.executeQuery();
+		     try {
+		         conn = DBManager.getDBConnection();
+		         pstmt = conn.prepareStatement(sql);
+		         rs = pstmt.executeQuery();
 		            
-		            while (rs.next()) {
-		                EmployeeDTO emp = new EmployeeDTO();
-		                emp.setEmpId(rs.getString("emp_id"));
-		                emp.setEmpName(rs.getString("emp_name"));
-		                emp.setPosition(rs.getString("position"));
-		                emp.setAuth(rs.getString("auth"));
+		         while (rs.next()) {
+		             EmployeeDTO emp = new EmployeeDTO();
+		             emp.setEmpId(rs.getString("emp_id"));
+		             emp.setEmpName(rs.getString("emp_name"));
+		             emp.setPosition(rs.getString("position"));
+		             emp.setAuth(rs.getString("auth"));
 		                
-		                
-		                list.add(emp);
-		            }
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        } finally {
-		            DBManager.close(rs, pstmt, conn);	// DB 닫는 코드
-		        }
-		        return list;							// 리스트로 돌아가기		    }
-	 
+		             list.add(emp);
+		         }
+		     } catch (Exception e) {
+		         e.printStackTrace();
+		     } finally {
+		         DBManager.close(rs, pstmt, conn);	// DB 닫는 코드
+		     }
+		     return list;							// 리스트로 돌아가기
+		 }
 		 
 		 
 		 // 여기부터 직원등록(insert), 수정(update), 삭제(delete) 메서드를 추가가능
@@ -103,13 +100,13 @@ public class EmployeeDAO {
 		        
 		      
 		      try {
-		            conn = DBManager.getConnection();
+		    	    conn = DBManager.getDBConnection();
 		            pstmt = conn.prepareStatement(sql);
-		            pstmt.setString(1, empDto.getEmpId());
-		            pstmt.setString(2, empDto.getEmpPw());
-		            pstmt.setString(3, empDto.getEmpName());
-		            pstmt.setString(4, empDto.getPosition());
-		            pstmt.setString(5, empDto.getAuth());
+		            pstmt.setString(1, empDTO.getEmpId());
+		            pstmt.setString(2, empDTO.getEmpPw());
+		            pstmt.setString(3, empDTO.getEmpName());
+		            pstmt.setString(4, empDTO.getPosition());
+		            pstmt.setString(5, empDTO.getAuth());
 		            pstmt.executeUpdate(); // INSERT, UPDATE, DELETE는 executeUpdate() 사용
 		        } catch (Exception e) {
 		            e.printStackTrace();
@@ -117,5 +114,4 @@ public class EmployeeDAO {
 		            DBManager.close(null, pstmt, conn); // ResultSet이 없으므로 첫 인자는 null
 		        }
 		    }
-		}  
-	
+}

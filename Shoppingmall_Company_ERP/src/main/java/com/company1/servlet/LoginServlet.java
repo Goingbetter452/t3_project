@@ -48,8 +48,14 @@ public class LoginServlet extends HttpServlet {
 		 } else {	// 로그인 실패! (null이면 회원정보가 없다는 뜻)
 			 System.out.println("로그인 실패: 아이디 또는 비밀버호를 다시 확인부탁드립니다.");
 			 
-			 // 다시 로그인 페이지로 돌아가기
-			 response.sendRedirect("login.jsp");
+			 // 1. request 객체에 "loginError"라는 이름표로 에러 메시지를 담습니다.
+			    request.setAttribute("loginError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+			    
+			 // 2. login.jsp로 이 요청을 그대로 전달(forward)할 준비를 합니다.
+			    jakarta.servlet.RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");   
+			 
+			 // 3. 준비한 dispatcher를 실행하여 login.jsp로 이동합니다.
+			    dispatcher.forward(request, response);
 		 }
 	 }
 

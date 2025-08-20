@@ -39,10 +39,6 @@
 	</form>
    
     </form>
-</div> <div class="ad-banner">
-    <a href="#"> <img src="images/loginpage.jpg" alt="자연 풍경 이미지">
-    </a>
-</div>
    
 </body>
 </html>
