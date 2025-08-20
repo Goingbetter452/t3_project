@@ -48,7 +48,7 @@ ResultSet products = productStmt.executeQuery();
   <input type="submit" value="주문" />
 </form>
   <h3>주문 목록</h3>
-  <table border="">
+  <table border="1">
     <tr>
       <th>주문번호</th>
         <th>고객명</th>
