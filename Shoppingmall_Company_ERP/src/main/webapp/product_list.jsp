@@ -166,7 +166,7 @@ try {
     </table>
 
     <!-- 페이징 -->
-    <% if(hasData && totalRows > pageSize) { %>
+    <% if(hasData && totalRows > pageSize) { %> 
     <div class="pagination">
     <%
     int totalPages = (int)Math.ceil((double)totalRows / pageSize);
