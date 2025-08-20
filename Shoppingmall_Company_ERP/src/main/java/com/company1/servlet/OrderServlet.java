@@ -61,7 +61,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
-            // JSP로 전달할 때 request에 저장
+            // JSP로 전달할 때 request에 저장.request(요청)이 있는 동안 orderList에 rs를 저장.데이터담아둠 
             request.setAttribute("orderList", rs);
 
             // order_list.jsp로 forward
