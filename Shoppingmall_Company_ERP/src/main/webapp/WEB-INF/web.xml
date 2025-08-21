@@ -9,4 +9,13 @@
     <welcome-file>default.jsp</welcome-file>
     <welcome-file>default.htm</welcome-file>
   </welcome-file-list>
+  
+  <servlet>
+    <servlet-name>CustomerServlet</servlet-name>
+    <servlet-class>com.company1.servlet.CustomerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CustomerServlet</servlet-name>
+	<url-pattern>/Shoppingmall_Company_ERP/CustomerServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
