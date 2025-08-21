@@ -30,7 +30,7 @@ public class EmployeeServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
+		request.setCharacterEncoding("UTF-8");		// 한글 깨짐 방지
 		actionDo(request, response);
 	}
 	
@@ -69,6 +69,38 @@ public class EmployeeServlet extends HttpServlet {
 			String position = request.getParameter("position");
 			String auth = request.getParameter("auth");
 			
+			
+			 // 여기에 유효성 검사 코드가 시작 
+		    /* =======================================================
+		     * 서버 측 유효성 검사 (Server-side Validation)
+		     * ======================================================= */
+		    // 검사 1: 주요 데이터가 비어있는지 확인
+		    if (empId == null || empId.trim().isEmpty() || 
+		        empPw == null || empPw.trim().isEmpty() || 
+		        empName == null || empName.trim().isEmpty() ||
+		        position == null || position.trim().isEmpty()) {
+		        
+		        // 문제가 있으면 다시 폼으로 돌려보낸다.
+		        response.sendRedirect("employee/employee_form.jsp?error=empty_data");
+		        return; // 여기서 메소드 실행을 중단시킨다.
+		    }
+
+		    // 검사 2: 비밀번호가 8자리 이상인지 확인
+		    if (empPw.trim().length() < 8) {
+		        response.sendRedirect("employee/employee_form.jsp?error=password_length");
+		        return;
+		    }
+
+		    // 검사 3: 아이디가 영문/숫자로만 되어있는지 확인 (정규표현식 사용)
+		    // ^[a-zA-Z0-9]*$  -> 시작(^)부터 끝($)까지 영문(a-zA-Z)과 숫자(0-9)만 있는지 검사
+		    if (!empId.matches("^[a-zA-Z0-9]*$")) {
+		        response.sendRedirect("employee/employee_form.jsp?error=invalid_id");
+		        return;
+		    }
+		    // 여기까지 유효성 검사 코드
+
+			
+		    
 			EmployeeDTO empDTO = new EmployeeDTO();
 			empDTO.setEmpId(empId);
 			empDTO.setEmpPw(empPw);
@@ -78,8 +110,7 @@ public class EmployeeServlet extends HttpServlet {
 			
 			employeeDAO.insertEmployee(empDTO);
 			
-			response.sendRedirect("employee?command=list");
-			return; 
+			response.sendRedirect("index.jsp");
 			
 		} else if (action != null && action.equals("update")) {
 			// 직원 수정 처리 (나중에 구현)
