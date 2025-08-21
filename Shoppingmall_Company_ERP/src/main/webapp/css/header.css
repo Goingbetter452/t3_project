@@ -1,82 +1,58 @@
-@charset "UTF-8";
-
 /* ============================================
-   헤더 영역 스타일
+   헤더 영역 스타일 개선
    ============================================ */
 header {
     width: 100%;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 0 20px;
+    /* 배경 그라데이션 및 그림자 추가 */
+    background: linear-gradient(90deg, #6c5ce7, #4a29a0); 
+    border-bottom: none; /* 기존 테두리 제거 */
+    padding: 15px 30px; /* 패딩 증가 */
     box-sizing: border-box;
-    position: relative; /* ✨ 자식 요소의 위치 기준점이 되도록 설정 (한울추가)*/
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between; /* 메뉴와 로그아웃 버튼을 양 끝으로 보냅니다. */
+    align-items: center; /* 수직 가운데 정렬합니다. */
 }
 
-
-/*---------------------------------------------*/
-/* 헤더 영역 중 "로그아웃" (한울 추가)*/ 
-
-
-
-.user-info {
-position: absolute; 
-right: 40px;      
-top: 50%;         
-transform: translateY(-50%) 
-}
-
-.user-info a {
-background-color: #007bff;
-color: white;
-padding: 8px 15px; /* 파란 여백 크기 */
-text-decoration: none;
-border-radius: 5px;
-font-weight: bold;
-font-size: 14px;
-white-space: nowrap; /* 줄바꿈 방지 */
-}
-
-/*---------------------여기까지(한울)---------------*/
-
-
-
-
-/* 네비게이션 메뉴 컨테이너 */
+/* ============================================
+   메인 메뉴 스타일 개선
+   ============================================ */
 nav ul.main-menu {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
-    height: 60px;
+    height: auto; /* 높이 자동 조절 */
+    gap: 20px; /* 메뉴 항목 간 간격 추가 */
 }
 
-/* 메인 메뉴 아이템 (li) */
 nav ul.main-menu > li {
     position: relative;
 }
 
-/* 메뉴 링크 (a) 스타일 */
 nav ul.main-menu > li > a {
     display: block;
-    padding: 0 20px;
+    padding: 10px 15px; /* 패딩 조정 */
     text-decoration: none;
-    color: #333;
-    font-size: 16px;
+    color: white; /* 텍스트 색상을 흰색으로 변경 */
+    font-size: 1em;
     font-weight: 500;
-    line-height: 60px;
-    transition: color 0.2s;
+    line-height: normal; /* 라인 높이 정상화 */
+    transition: color 0.3s;
 }
 
-/* 메뉴 링크에 마우스를 올렸을 때 */
 nav ul.main-menu > li > a:hover {
-    color: #007bff;
+    color: #a3e7ff; /* 호버 시 밝은 파란색으로 변경 */
 }
 
-/* 드롭다운 메뉴 스타일 */
+/* ============================================
+   드롭다운 메뉴 스타일 개선
+   ============================================ */
 nav ul.dropdown-menu {
     list-style: none;
-    padding: 10px 0;
+    padding: 0;
     margin: 0;
     position: absolute;
     top: 100%;
@@ -84,12 +60,12 @@ nav ul.dropdown-menu {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     display: none;
     min-width: 150px;
+    z-index: 100; /* 드롭다운 메뉴가 다른 요소 위에 표시되도록 설정 */
 }
 
-/* 드롭다운 메뉴의 아이템 링크 스타일 */
 nav ul.dropdown-menu li a {
     padding: 10px 20px;
     display: block;
@@ -99,13 +75,36 @@ nav ul.dropdown-menu li a {
     white-space: nowrap;
 }
 
-/* 드롭다운 메뉴 아이템에 마우스를 올렸을 때 */
 nav ul.dropdown-menu li a:hover {
     background-color: #f0f8ff;
     color: #007bff;
 }
 
-/* 메인 메뉴 아이템에 마우스를 올리면 드롭다운 메뉴 표시 */
 nav ul.main-menu > li:hover > ul.dropdown-menu {
     display: block;
+}
+
+/* ============================================
+   로그아웃 버튼 스타일 개선
+   ============================================ */
+.user-info {
+    /* flexbox 정렬을 따르도록 불필요한 속성 제거 */
+    position: static; 
+    margin-left: auto; /* 왼쪽 여백을 자동으로 채워 오른쪽 끝으로 밀림 */
+}
+
+.user-info a {
+    background-color: white;
+    color: #4a29a0;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background-color 0.3s;
+}
+
+.user-info a:hover {
+    background-color: #dbe4ee; /* 호버 시 연한 회색으로 변경 */
 }
