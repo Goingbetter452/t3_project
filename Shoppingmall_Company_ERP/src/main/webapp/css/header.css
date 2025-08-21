@@ -1,0 +1,111 @@
+@charset "UTF-8";
+
+/* ============================================
+   헤더 영역 스타일
+   ============================================ */
+header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 20px;
+    box-sizing: border-box;
+    position: relative; /* ✨ 자식 요소의 위치 기준점이 되도록 설정 (한울추가)*/
+}
+
+
+/*---------------------------------------------*/
+/* 헤더 영역 중 "로그아웃" (한울 추가)*/ 
+
+
+
+.user-info {
+position: absolute; 
+right: 40px;      
+top: 50%;         
+transform: translateY(-50%) 
+}
+
+.user-info a {
+background-color: #007bff;
+color: white;
+padding: 8px 15px; /* 파란 여백 크기 */
+text-decoration: none;
+border-radius: 5px;
+font-weight: bold;
+font-size: 14px;
+white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+/*---------------------여기까지(한울)---------------*/
+
+
+
+
+/* 네비게이션 메뉴 컨테이너 */
+nav ul.main-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+
+/* 메인 메뉴 아이템 (li) */
+nav ul.main-menu > li {
+    position: relative;
+}
+
+/* 메뉴 링크 (a) 스타일 */
+nav ul.main-menu > li > a {
+    display: block;
+    padding: 0 20px;
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 60px;
+    transition: color 0.2s;
+}
+
+/* 메뉴 링크에 마우스를 올렸을 때 */
+nav ul.main-menu > li > a:hover {
+    color: #007bff;
+}
+
+/* 드롭다운 메뉴 스타일 */
+nav ul.dropdown-menu {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    display: none;
+    min-width: 150px;
+}
+
+/* 드롭다운 메뉴의 아이템 링크 스타일 */
+nav ul.dropdown-menu li a {
+    padding: 10px 20px;
+    display: block;
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* 드롭다운 메뉴 아이템에 마우스를 올렸을 때 */
+nav ul.dropdown-menu li a:hover {
+    background-color: #f0f8ff;
+    color: #007bff;
+}
+
+/* 메인 메뉴 아이템에 마우스를 올리면 드롭다운 메뉴 표시 */
+nav ul.main-menu > li:hover > ul.dropdown-menu {
+    display: block;
+}

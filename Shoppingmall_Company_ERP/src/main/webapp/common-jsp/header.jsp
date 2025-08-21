@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Header</title>
-<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" type="text/css" href="css/header.css">
 </head>
 <body>
 
@@ -13,15 +13,16 @@
         <nav>
             <ul class="main-menu">
                 <li><a href="index.jsp">메인 페이지</a></li>
-                <li><a href="#">사용자 관리</a></li>
+                <li><a href="employee_list">사용자 관리</a></li>
                 <li>
-                    <a href="#">상품 관리</a>
+                    <a href="product_main">상품 관리</a>
                     <ul class="dropdown-menu">
                         <li><a href="product_list.jsp">상품 목록</a></li>
                         <li><a href="product_add.jsp">상품 추가</a></li>
                     </ul>
                 </li>
                 <li><a href="order_list.jsp">주문 관리</a></li>
+                <li><a href="customer_list.jsp">고객관리</a></li>
                 <li><a href="#">그룹웨어</a></li>
             </ul>
             

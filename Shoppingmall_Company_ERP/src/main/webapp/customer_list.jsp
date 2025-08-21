@@ -1,14 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ page import="java.sql.ResultSet" %>
-
-<% 
-ResultSet rs = (ResultSet) request.getAttribute("customerList"); // 고객 목록을 가져옵니다.
+<%@ page import="java.sql.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+ResultSet rs = (ResultSet) request.getAttribute("customerList");
 %>
 <html>
 <head>
 <meta charset="UTF-8">
 <head><title>고객 관리</title></head>
+<link rel="stylesheet" href="customer_list.css">
 </head>
 <body>
 	<h2>고객 관리</h2>
@@ -17,7 +16,7 @@ ResultSet rs = (ResultSet) request.getAttribute("customerList"); // 고객 목�
 	<h3>고객 등록</h3>
 	<form action="CustomerServlet" method="post">
 	<input type="hidden" name="action" value="insert" />
-	이름 : <input type="text" name="name" required />
+	이름 : <input type="text" name="cname" required />
 	이메일 : <input type="email" name="email" />
 	<input type= "submit" value="등록" />
 	</form>
