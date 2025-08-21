@@ -6,6 +6,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+
 // 데이터베이스에 접속해 직원관련 SQL(추가, 조회, 수정, 삭제)을 실행하는 역할 담당 [ 쉽게 표현하면 해결사 ]
 public class EmployeeDAO {
 		
@@ -82,6 +85,48 @@ public class EmployeeDAO {
 		     }
 		     return list;							// 리스트로 돌아가기
 		 }
+		 
+		 
+		 
+		 
+		 /**
+          * ✨ 새로 추가된 메소드 ✨
+          * 직원 아이디(empId)를 이용해 특정 직원 한 명의 모든 정보를 조회하는 메소드
+          * @param empId 조회할 직원의 아이디
+          * @return 직원 정보가 담긴 EmployeeDTO 객체, 해당 직원이 없으면 null
+          */
+         public EmployeeDTO selectEmployeeById(String empId) {
+             Connection conn = null;
+             PreparedStatement pstmt = null;
+             ResultSet rs = null;
+             EmployeeDTO emp = null;
+             
+             String sql = "SELECT * FROM employees WHERE emp_id = ?";
+             
+             try {
+                 conn = DBManager.getDBConnection();
+                 pstmt = conn.prepareStatement(sql);
+                 pstmt.setString(1, empId);
+                 rs = pstmt.executeQuery();
+                 
+                 if (rs.next()) { // 해당 아이디의 직원이 존재한다면
+                     emp = new EmployeeDTO();
+                     emp.setEmpId(rs.getString("emp_id"));
+                     emp.setEmpPw(rs.getString("emp_pw"));
+                     emp.setEmpName(rs.getString("emp_name"));
+                     emp.setPosition(rs.getString("position"));
+                     emp.setAuth(rs.getString("auth"));
+                 }
+             } catch (Exception e) {
+                 e.printStackTrace();
+             } finally {
+                 DBManager.close(rs, pstmt, conn);
+             }
+             return emp; // 찾았으면 emp 객체를, 못 찾았으면 null을 반환
+         }
+		 
+		 
+		 
 		 
 		 
 		 // 여기부터 직원등록(insert), 수정(update), 삭제(delete) 메서드를 추가가능
