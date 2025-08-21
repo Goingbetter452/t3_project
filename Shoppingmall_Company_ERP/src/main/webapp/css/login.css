@@ -73,14 +73,3 @@ body {
     border-radius: 6px;
 }
 
-.ad-banner {
-    margin-top: 50px;
-    width: 420px;
-}
-
-.ad-banner img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    display: block;
-}

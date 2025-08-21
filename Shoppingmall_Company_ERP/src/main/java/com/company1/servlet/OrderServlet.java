@@ -57,7 +57,12 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
         try {
             conn = DBManager.getDBConnection();
-            String sql = "SELECT * FROM orders ORDER BY order_date DESC";
+            String sql = "SELECT o.oid, c.cname, p.pname, oi.quantity, o.order_date "
+                        + "FROM orders o "
+                        + "JOIN customers c ON o.cid = c.cid "
+                        + "JOIN order_items oi ON o.oid = oi.order_id "
+                        + "JOIN products p ON oi.product_id = p.pid "
+                        + "ORDER BY o.order_date DESC";
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
