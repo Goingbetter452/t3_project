@@ -1,60 +1,74 @@
-<%@ page import="java.sql.*"%>
+<%@ page import="java.util.*, com.company1.dto.CustomerDTO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
+
 <%
-ResultSet rs = (ResultSet) request.getAttribute("customerList");
+List<CustomerDTO> customerList = (List<CustomerDTO>) request.getAttribute("customerList");
 %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>고객 관리</title>
-<link rel="stylesheet" href="css/customer.css">
+    <meta charset="UTF-8">
+    <title>고객 관리</title>
+    <link rel="stylesheet" href="css/customer.css">
 </head>
 <body>
-	<h2>고객 관리</h2>
-	<a href="index.jsp">대시보드</a>
-	<br>
-	<br>
+<div class="container">
+    <header>
+        <h1>고객 관리</h1>
+    </header>
 
-	<h3>고객 등록</h3>
-	<form action="CustomerServlet" method="post">
-		<input type="hidden" name="action" value="insert" /> 이름 : <input
-			type="text" name="cname" required /> 이메일 : <input type="email"
-			name="email" /> <input type="submit" value="등록" />
-	</form>
+    <a href="index.jsp" class="btn btn-primary">대시보드</a>
 
-	<%-- 고객 목록을 표시하는 테이블 --%>
-	<h3>고객 목록</h3>
-	<table>
-		<tr>
-			<th>고객 ID</th>
-			<th>이름</th>
-			<th>이메일</th>
-			<th>수정</th>
-			<th>삭제</th>
-		</tr>
+    <h3>고객 등록</h3>
+    <form action="CustomerServlet" method="post">
+        <input type="hidden" name="action" value="insert" />
+        이름 : <input type="text" name="cname" required />
+        이메일 : <input type="email" name="email" />
+        <button type="submit" class="btn btn-primary">등록</button>
+    </form>
 
-		<%-- 고객 목록이 비어있지 않은 경우에만 반복문 실행 --%>
-		<%
-		try {
-			while (rs != null && rs.next()) {
-		%>
-		<tr>
-			<td><%=rs.getInt("cid")%></td>
-			<td><%=rs.getString("cname")%></td>
-			<td><%=rs.getString("email")%></td>
-			<td><a
-				href="CustomerServlet?action=edit&cid=<%=rs.getInt("cid")%>">수정</a></td>
-			<td><a
-				href="CustomerServlet?action=delete&cid=<%=rs.getInt("cid")%>"
-				onclick="return confirm('삭제하시겠습니까?');">삭제</a></td>
-		</tr>
-		<%
-		}
-		} catch (Exception e) {
-		e.printStackTrace();
-		}
-		%>
-	</table>
+    <h3>고객 목록</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>순번</th>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                </tr>
+            </thead>
+            <tbody>
+            <%
+                if (customerList != null && !customerList.isEmpty()) {
+                    for (CustomerDTO c : customerList) {
+            %>
+                <tr>
+                    <td><%= c.getCid() %></td>
+                    <td><%= c.getCname() %></td>
+                    <td><%= c.getEmail() %></td>
+                    <td><a href="CustomerServlet?action=edit&cid=<%= c.getCid() %>" class="btn btn-primary">수정</a></td>
+                    <td><a href="CustomerServlet?action=delete&cid=<%= c.getCid() %>" class="btn btn-primary" onclick="return confirm('삭제하시겠습니까?');">삭제</a></td>
+                </tr>
+            <%
+                    }
+                } else {
+            %>
+                <tr>
+                    <td colspan="5" class="no-data">등록된 고객이 없습니다.</td>
+                </tr>
+            <%
+                }
+            %>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        &copy; 2025 고객 관리 시스템
+    </footer>
+</div>
 </body>
 </html>

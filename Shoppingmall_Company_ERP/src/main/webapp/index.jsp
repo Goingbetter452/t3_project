@@ -48,7 +48,14 @@
             <p>직원 공지 게시판</p>
             <a href="groupware.jsp" class="btn">공지 보기</a>
         </div>
+        
+        <div class="feature-card">
+            <h3> 고객 관리 </h3>
+            <p>고객 정보 및 고객 계정 관리</p>
+            <a href="CustomerServlet?action=list" class="btn">고객 관리</a>
+        </div>
     </div>
+    
     
     <div style="text-align: center; margin-top: 40px;">
         <h2>빠른 시작</h2>

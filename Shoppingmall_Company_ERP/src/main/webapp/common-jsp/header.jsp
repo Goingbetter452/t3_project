@@ -18,7 +18,7 @@
                     </ul>
                 </li>
                 <li><a href="order_list.jsp">주문 관리</a></li>
-                 <li><a href="customer_list.jsp">고객 관리</a></li>
+                 <li><a href="CustomerServlet?action=list">고객 관리</a></li>
                   <li><a href="groupware.jsp">그룹웨어</a></li>
             </ul>
             
