@@ -15,7 +15,7 @@ public class CustomerDAO {
     // 모든 고객 정보를 가져오는 메서드
     public List<CustomerDTO> getAllCustomers() {
         List<CustomerDTO> customerList = new ArrayList<>();
-        String sql = "SELECT CID, ID, CNAME, EMAIL, PHONE FROM CUSTOMERS ORDER BY CID DESC";
+        String sql = "SELECT CID, CNAME, EMAIL FROM CUSTOMERS ORDER BY CID DESC";
 
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -24,10 +24,8 @@ public class CustomerDAO {
             while (rs.next()) {
                 CustomerDTO customer = new CustomerDTO();
                 customer.setCid(rs.getInt("CID"));
-                customer.setId(rs.getInt("ID"));
                 customer.setCname(rs.getString("CNAME"));
                 customer.setEmail(rs.getString("EMAIL"));
-                customer.setPhone(rs.getString("PHONE"));
                 customerList.add(customer);
             }
         } catch (SQLException e) {
@@ -39,7 +37,7 @@ public class CustomerDAO {
     // 특정 고객 정보를 가져오는 메서드
     public CustomerDTO getCustomerById(int cid) {
         CustomerDTO customer = null;
-        String sql = "SELECT CID, ID, CNAME, EMAIL, PHONE FROM CUSTOMERS WHERE CID = ?";
+        String sql = "SELECT CID, CNAME, EMAIL FROM CUSTOMERS WHERE CID = ?";
 
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -49,10 +47,8 @@ public class CustomerDAO {
                 if (rs.next()) {
                     customer = new CustomerDTO();
                     customer.setCid(rs.getInt("CID"));
-                    customer.setId(rs.getInt("ID"));
                     customer.setCname(rs.getString("CNAME"));
                     customer.setEmail(rs.getString("EMAIL"));
-                    customer.setPhone(rs.getString("PHONE"));
                 }
             }
         } catch (SQLException e) {
@@ -63,15 +59,12 @@ public class CustomerDAO {
 
     // 고객 정보를 추가하는 메서드
     public void addCustomer(CustomerDTO customer) {
-        // ID는 실제로는 로그인 세션 등에서 가져와야 하지만, 예시에서는 DTO에 포함된 값을 사용
-        String sql = "INSERT INTO CUSTOMERS(ID, CNAME, EMAIL, PHONE) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO CUSTOMERS(CNAME, EMAIL) VALUES (?, ?)";
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, customer.getId());
-            pstmt.setString(2, customer.getCname());
-            pstmt.setString(3, customer.getEmail());
-            pstmt.setString(4, customer.getPhone());
+            pstmt.setString(1, customer.getCname());
+            pstmt.setString(2, customer.getEmail());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,14 +73,13 @@ public class CustomerDAO {
 
     // 고객 정보를 수정하는 메서드
     public void updateCustomer(CustomerDTO customer) {
-        String sql = "UPDATE CUSTOMERS SET CNAME = ?, EMAIL = ?, PHONE = ? WHERE CID = ?";
+        String sql = "UPDATE CUSTOMERS SET CNAME = ?, EMAIL = ? WHERE CID = ?";
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, customer.getCname());
             pstmt.setString(2, customer.getEmail());
-            pstmt.setString(3, customer.getPhone());
-            pstmt.setInt(4, customer.getCid());
+            pstmt.setInt(3, customer.getCid());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

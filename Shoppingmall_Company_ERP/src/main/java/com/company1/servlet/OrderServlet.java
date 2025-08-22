@@ -4,11 +4,13 @@ import java.sql.*;
 
 import com.company1.DBManager;
 
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
-@WebServlet("/OrderServlet")
 public class OrderServlet extends HttpServlet {
 	// 1. GET 요청 처리
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -123,7 +125,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             pstmt.setInt(1, productId);
             ResultSet rs = pstmt.executeQuery();
             if(!rs.next()) throw new Exception("상품 없음");
-            int price = rs.getInt("price");
+            double unitPrice = rs.getDouble("price");
             int stock = rs.getInt("stock");
             rs.close(); pstmt.close();
 
@@ -134,13 +136,14 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             pstmt.setInt(1, cid);
             pstmt.executeUpdate();
             pstmt.close();
-         // 3. order_items 등록
+            
+            // 3. order_items 등록 (테이블 구조에 맞게 수정)
             pstmt = conn.prepareStatement(
-                "INSERT INTO order_items(order_item_id, order_id, product_id, quantity, price) " +
+                "INSERT INTO order_items(order_item_id, order_id, product_id, quantity, unit_price) " +
                 "VALUES(order_items_seq.NEXTVAL, orders_seq.CURRVAL, ?, ?, ?)");
             pstmt.setInt(1, productId);
             pstmt.setInt(2, quantity);
-            pstmt.setInt(3, price * quantity);
+            pstmt.setDouble(3, unitPrice); // 단가를 그대로 저장
             pstmt.executeUpdate();
             pstmt.close();
 
@@ -151,16 +154,29 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             pstmt.executeUpdate();
 
             conn.commit();
+            
+            // 성공 메시지 출력
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>");
+            out.println("alert('주문이 성공적으로 등록되었습니다.');");
+            out.println("location.href='" + request.getContextPath() + "/OrderServlet?action=list';");
+            out.println("</script>");
 
         } catch(Exception e) {
             try { if(conn != null) conn.rollback(); } catch(Exception ex) { ex.printStackTrace(); }
             e.printStackTrace();
+            
+            // 오류 메시지 출력
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>");
+            out.println("alert('주문 등록 중 오류가 발생했습니다: " + e.getMessage() + "');");
+            out.println("history.back();");
+            out.println("</script>");
         } finally {
             DBManager.close(null, pstmt, conn);
         }
-
-        // 주문 완료 후 목록 조회
-        listOrders(request, response);
     }
 	// 6. 주문 수정 메서드 (필요시)
 	private void updateOrder(HttpServletRequest request, HttpServletResponse response)
