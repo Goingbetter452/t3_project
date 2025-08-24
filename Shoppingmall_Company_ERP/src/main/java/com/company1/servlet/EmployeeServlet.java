@@ -7,6 +7,7 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -19,7 +20,9 @@ import com.company1.dto.EmployeeDTO;
  */
 
 
+
 @WebServlet("/employee")
+
 public class EmployeeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
