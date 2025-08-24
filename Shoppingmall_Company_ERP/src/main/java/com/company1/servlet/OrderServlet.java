@@ -59,7 +59,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
         try {
             conn = DBManager.getDBConnection();
-            String sql = "SELECT o.oid, c.cname, p.pname, oi.quantity, o.order_date "
+            String sql = "SELECT o.oid, c.cname, p.pname, oi.quantity, oi.unit_price, o.order_date "
                         + "FROM orders o "
                         + "JOIN customers c ON o.cid = c.cid "
                         + "JOIN order_items oi ON o.oid = oi.order_id "
@@ -113,7 +113,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         PreparedStatement pstmt = null;
 
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
+            int productId = Integer.parseInt(request.getParameter("pid"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             int cid = Integer.parseInt(request.getParameter("cid")); // 로그인한 회원 ID
 
