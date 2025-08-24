@@ -10,11 +10,19 @@
             <ul class="main-menu">
                 <li><a href="index.jsp">메인 페이지</a></li>
                 <li>
+<<<<<<< HEAD
                 	<a href="#">사용자 관리</a>
                 	<ul class="dropdown-menu">
                 		<li><a href="employee_form.jsp">직원 등록</a></li>
                 		<li><a href="employee_list.jsp">직원 관리</a></li>
                 	</ul>		
+=======
+                    <a href="#">사용자 관리</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="employee_form.jsp">직원 등록</a></li>
+                        <li><a href="EmployeeServlet?command=list">직원 관리</a></li>
+                    </ul>        
+>>>>>>> 3e78684aae4775ddca39ade43ad6dcee0b6c5b5c
                 </li>
                 
                 <li>
@@ -24,8 +32,8 @@
                         <li><a href="product_add.jsp">상품 추가</a></li>
                     </ul>
                 </li>
-                <li><a href="order_list.jsp">주문 관리</a></li>
-                 <li><a href="customer_list.jsp">고객 관리</a></li>
+                <li><a href="OrderServlet?command=list">주문 관리</a></li>
+                 <li><a href="CustomerServlet?command=list">고객 관리</a></li>
                   <li><a href="#">그룹웨어</a></li>
             </ul>
 

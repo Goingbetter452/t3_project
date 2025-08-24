@@ -5,7 +5,6 @@ import java.util.List;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,8 +16,11 @@ import com.company1.dto.EmployeeDTO;
  * 직원(Employee) 관련 모든 요청을 처리하는 프론트 컨트롤러 서블릿입니다.
  * URL 매핑: /EmployeeServlet
  */
+<<<<<<< HEAD
 
 @WebServlet("/employee")
+=======
+>>>>>>> 3e78684aae4775ddca39ade43ad6dcee0b6c5b5c
 public class EmployeeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
