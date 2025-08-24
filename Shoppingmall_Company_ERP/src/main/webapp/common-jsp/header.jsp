@@ -26,7 +26,7 @@
                 </li>
                 <li><a href="OrderServlet?command=list">주문 관리</a></li>
                  <li><a href="CustomerServlet?command=list">고객 관리</a></li>
-                  <li><a href="#">그룹웨어</a></li>
+                  <li><a href="groupware.jsp">그룹웨어</a></li>
             </ul>
 
         </nav>
