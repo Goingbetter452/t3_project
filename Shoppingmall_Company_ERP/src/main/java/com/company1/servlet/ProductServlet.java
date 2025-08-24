@@ -1,8 +1,6 @@
 package com.company1.servlet;
 
 import com.company1.DBManager;
-import com.company1.dao.ProductDAO;
-import com.company1.dto.ProductDTO;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -14,18 +12,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public class ProductServlet extends HttpServlet {
 
-    private ProductDAO productDAO;
-    
-    // Servlet이 처음 로드될 때 ProductDAO 객체를 초기화합니다.
+    // Servlet이 처음 로드될 때 초기화합니다.
     public void init() {
-        productDAO = new ProductDAO();
+        // ProductDAO 의존성 제거
     }
     
-    // 메모리에 Servlet 객체가 생성되면 init() 메소드가 호출되어 ProductDAO 객체를 초기화합니다.
+    // 메모리에 Servlet 객체가 생성되면 init() 메소드가 호출됩니다.
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -34,25 +29,21 @@ public class ProductServlet extends HttpServlet {
             action = "list";
         }
 
-        try {
-            switch (action) {
-                case "list":
-                    listProducts(request, response);
-                    break;
-                case "delete":
-                    deleteProduct(request, response);
-                    break;
-                case "edit":
-                    editProductForm(request, response);
-                    break;
-                default:
-                    listProducts(request, response);
-                    break;
-            }
-        } catch (SQLException ex) {
-            throw new ServletException(ex);
+        switch (action) {
+            case "list":
+                listProducts(request, response);
+                break;
+            case "delete":
+                deleteProduct(request, response);
+                break;
+            case "edit":
+                editProductForm(request, response);
+                break;
+            default:
+                listProducts(request, response);
+                break;
         }
-        }
+    }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,64 +57,119 @@ public class ProductServlet extends HttpServlet {
             } else {
                 doGet(request, response);
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServletException(ex);
         }
     }
 
+    // Updated database handling to align with OrderServlet
     private void listProducts(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException, ServletException {
-        List<ProductDTO> productList = productDAO.getAllProducts();
-        request.setAttribute("productList", productList);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("product_list.jsp");
-        dispatcher.forward(request, response);
+            throws ServletException, IOException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBManager.getDBConnection();
+            String sql = "SELECT pid, pname, price, stock FROM products ORDER BY pname ASC";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            request.setAttribute("productList", rs);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("product_list.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(rs, pstmt, conn);
+        }
     }
 
     private void insertProduct(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        String pname = request.getParameter("pname");
-        double price = Double.parseDouble(request.getParameter("price"));
-        int stock = Integer.parseInt(request.getParameter("stock"));
+            throws ServletException, IOException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
 
-        ProductDTO newProduct = new ProductDTO();
-        newProduct.setPname(pname);
-        newProduct.setPrice(price);
-        newProduct.setStock(stock);
-        productDAO.addProduct(newProduct);
-        response.sendRedirect("ProductServlet?action=list");
+        try {
+            String pname = request.getParameter("pname");
+            double price = Double.parseDouble(request.getParameter("price"));
+            int stock = Integer.parseInt(request.getParameter("stock"));
+
+            conn = DBManager.getDBConnection();
+            String sql = "INSERT INTO products(pid, pname, price, stock) VALUES(products_seq.NEXTVAL, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, pname);
+            pstmt.setDouble(2, price);
+            pstmt.setInt(3, stock);
+            pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(null, pstmt, conn);
+        }
+
+        listProducts(request, response);
     }
 
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        int pid = Integer.parseInt(request.getParameter("pid"));
-        productDAO.deleteProduct(pid);
-        response.sendRedirect("ProductServlet?action=list");
-    }
+            throws ServletException, IOException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
 
-    // 상품 수정 폼을 보여주는 메소드
-    private void editProductForm(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, ServletException, IOException {
-        int pid = Integer.parseInt(request.getParameter("pid"));
-        ProductDTO existingProduct = productDAO.getProductById(pid); // 상품 ID로 상품 정보를 조회합니다.
-        RequestDispatcher dispatcher = request.getRequestDispatcher("product_edit.jsp");
-        request.setAttribute("product", existingProduct);
-        dispatcher.forward(request, response);
+        try {
+            int pid = Integer.parseInt(request.getParameter("pid"));
+            conn = DBManager.getDBConnection();
+            String sql = "DELETE FROM products WHERE pid=?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, pid);
+            pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(null, pstmt, conn);
+        }
+
+        listProducts(request, response);
     }
 
     // 상품 정보를 수정하는 메소드
     private void updateProduct(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
-        int pid = Integer.parseInt(request.getParameter("pid"));
-        String pname = request.getParameter("pname");
-        double price = Double.parseDouble(request.getParameter("price"));
-        int stock = Integer.parseInt(request.getParameter("stock"));
+            throws ServletException, IOException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
 
-        ProductDTO product = new ProductDTO();
-        product.setPid(pid);
-        product.setPname(pname);
-        product.setPrice(price);
-        product.setStock(stock);
-        productDAO.updateProduct(product);
-        response.sendRedirect("ProductServlet?action=list");
+        try {
+            int pid = Integer.parseInt(request.getParameter("pid"));
+            String pname = request.getParameter("pname");
+            double price = Double.parseDouble(request.getParameter("price"));
+            int stock = Integer.parseInt(request.getParameter("stock"));
+
+            conn = DBManager.getDBConnection();
+            String sql = "UPDATE products SET pname=?, price=?, stock=? WHERE pid=?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, pname);
+            pstmt.setDouble(2, price);
+            pstmt.setInt(3, stock);
+            pstmt.setInt(4, pid);
+            pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(null, pstmt, conn);
+        }
+
+        listProducts(request, response);
+    }
+
+    // 상품 수정 폼을 보여주는 메소드
+    private void editProductForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // TODO: 상품 수정 폼 구현
+        response.getWriter().println("<h2>상품 수정 폼</h2>");
+        response.getWriter().println("<p>아직 구현되지 않았습니다.</p>");
     }
 }

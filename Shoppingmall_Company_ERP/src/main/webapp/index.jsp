@@ -42,6 +42,12 @@
             <p>매출 분석 및 상품 판매 통계</p>
             <a href="#" class="btn">통계 보기</a>
         </div>
+        
+        <div class="feature-card">
+            <h3> 그룹 웨어 </h3>
+            <p>직원 공지 게시판</p>
+            <a href="groupware.jsp" class="btn">공지 보기</a>
+        </div>
     </div>
     
     <div style="text-align: center; margin-top: 40px;">
