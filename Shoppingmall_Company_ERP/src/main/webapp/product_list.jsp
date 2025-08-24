@@ -3,13 +3,51 @@
 <%@ page import="com.company1.DBManager" %>
 
 <%
-// 상품 목록 조회
+// 페이징 파라미터 처리
+int pageSize = 10; // 페이지당 상품 수
+int currentPage = 1; // 현재 페이지
+String pageParam = request.getParameter("page");
+if (pageParam != null && !pageParam.trim().isEmpty()) {
+    try {
+        currentPage = Integer.parseInt(pageParam);
+        if (currentPage < 1) currentPage = 1;
+    } catch (NumberFormatException e) {
+        currentPage = 1;
+    }
+}
+
+// 상품 목록 조회 (페이징 적용)
 Connection conn = com.company1.DBManager.getDBConnection();
-PreparedStatement pstmt = conn.prepareStatement("SELECT pid, pname, price, stock FROM products ORDER BY pname ASC");
+
+// 전체 상품 수 조회
+PreparedStatement countStmt = conn.prepareStatement("SELECT COUNT(*) FROM products");
+ResultSet countRs = countStmt.executeQuery();
+int totalProducts = 0;
+if (countRs.next()) {
+    totalProducts = countRs.getInt(1);
+}
+countRs.close();
+countStmt.close();
+
+// 전체 페이지 수 계산
+int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
+if (totalPages < 1) totalPages = 1;
+
+// 현재 페이지 범위 조정
+if (currentPage > totalPages) {
+    currentPage = totalPages;
+}
+
+// 페이징된 상품 목록 조회
+int offset = (currentPage - 1) * pageSize;
+PreparedStatement pstmt = conn.prepareStatement(
+    "SELECT pid, pname, price, stock FROM products ORDER BY pname ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
+);
+pstmt.setInt(1, offset);
+pstmt.setInt(2, pageSize);
 ResultSet rs = pstmt.executeQuery();
 
-// 변수들을 try 블록 밖에서 선언
-int totalProducts = 0;
+// 통계 계산
 double totalValue = 0;
 int lowStockCount = 0;
 %>
@@ -57,6 +95,7 @@ int lowStockCount = 0;
             <h2>📦 신규 상품 등록</h2>
             <form action="ProductServlet" method="post">
                 <input type="hidden" name="action" value="insert">
+                <input type="hidden" name="returnPage" value="<%= currentPage %>">
                 <div class="product-form-row">
                     <div class="form-group">
                         <label for="pname">상품명:</label>
@@ -94,7 +133,6 @@ int lowStockCount = 0;
                     <%
                     try {
                         while (rs.next()) {
-                            totalProducts++;
                             double price = rs.getDouble("price");
                             int stock = rs.getInt("stock");
                             totalValue += (price * stock);
@@ -127,7 +165,6 @@ int lowStockCount = 0;
                         }
                         
                         // 통계 업데이트를 위한 스크립트
-                        if (totalProducts > 0) {
                     %>
                         <script>
                             document.querySelector('.product-stats .stat-item:nth-child(1) .stat-number').textContent = '<%= totalProducts %>';
@@ -135,7 +172,6 @@ int lowStockCount = 0;
                             document.querySelector('.product-stats .stat-item:nth-child(3) .stat-number').textContent = '₩<%= String.format("%,d", (int)totalValue) %>';
                         </script>
                     <%
-                        }
                         
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -153,9 +189,126 @@ int lowStockCount = 0;
             %>
                 <div class="no-data">📭 등록된 상품이 없습니다. 첫 번째 상품을 등록해보세요!</div>
             <%
+            } else {
+                // 페이징 네비게이션 표시
+            %>
+                <div class="pagination">
+                    <%
+                    // 이전 페이지 버튼
+                    if (currentPage > 1) {
+                    %>
+                        <a href="?page=<%= currentPage - 1 %>" class="page-btn prev">◀ 이전</a>
+                    <%
+                    }
+                    
+                    // 페이지 번호들
+                    int startPage = Math.max(1, currentPage - 2);
+                    int endPage = Math.min(totalPages, currentPage + 2);
+                    
+                    if (startPage > 1) {
+                    %>
+                        <a href="?page=1" class="page-btn">1</a>
+                        <% if (startPage > 2) { %>
+                            <span class="page-ellipsis">...</span>
+                        <% } %>
+                    <%
+                    }
+                    
+                    for (int i = startPage; i <= endPage; i++) {
+                        if (i == currentPage) {
+                    %>
+                            <span class="page-btn current"><%= i %></span>
+                    <%
+                        } else {
+                    %>
+                            <a href="?page=<%= i %>" class="page-btn"><%= i %></a>
+                    <%
+                        }
+                    }
+                    
+                    if (endPage < totalPages) {
+                        if (endPage < totalPages - 1) {
+                    %>
+                            <span class="page-ellipsis">...</span>
+                    <%
+                        }
+                    %>
+                        <a href="?page=<%= totalPages %>" class="page-btn"><%= totalPages %></a>
+                    <%
+                    }
+                    
+                    // 다음 페이지 버튼
+                    if (currentPage < totalPages) {
+                    %>
+                        <a href="?page=<%= currentPage + 1 %>" class="page-btn next">다음 ▶</a>
+                    <%
+                    }
+                    %>
+                </div>
+                
+                <div class="page-info">
+                    <span>총 <%= totalProducts %>개 상품 중 <%= (currentPage - 1) * pageSize + 1 %>-<%= Math.min(currentPage * pageSize, totalProducts) %>번째 상품</span>
+                    <span>페이지 <%= currentPage %> / <%= totalPages %></span>
+                </div>
+            <%
             }
             %>
         </div>
     </div>
+    
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            gap: 5px;
+        }
+        
+        .page-btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+        
+        .page-btn.current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .page-btn.prev,
+        .page-btn.next {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .page-ellipsis {
+            padding: 8px 12px;
+            color: #666;
+        }
+        
+        .page-info {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .page-info span {
+            margin: 0 10px;
+        }
+    </style>
 </body>
 </html>
