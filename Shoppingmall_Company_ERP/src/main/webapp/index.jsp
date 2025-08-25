@@ -3,7 +3,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>쇼핑몰 회사 ERP 시스템2</title>
+<title>B2B Company ERP 시스템</title>
+<link rel="stylesheet" type="text/css" href="css/common.css">
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
@@ -13,7 +14,7 @@
 
 <div class="container">
     <div class="hero-section">
-        <h1>쇼핑몰 회사 ERP 시스템</h1>
+        <h1>B2B 회사 ERP 시스템</h1>
         <p>효율적인 상품 관리와 주문 처리를 위한 통합 시스템</p>
         <a href="product_main.jsp" class="btn btn-large btn-success">시작하기</a>
     </div>

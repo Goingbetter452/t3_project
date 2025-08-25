@@ -1,0 +1,77 @@
+/* 고객 관리 전용 스타일 */
+.customer-stats .stat-item:nth-child(1) .stat-number {
+    color: #4CAF50;
+}
+
+.customer-stats .stat-item:nth-child(2) .stat-number {
+    color: #2196F3;
+}
+
+.customer-stats .stat-item:nth-child(3) .stat-number {
+    color: #FF9800;
+}
+
+.customer-form {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.customer-form h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.3);
+}
+
+.customer-form .form-group label {
+    color: white;
+}
+
+.customer-form .form-group input {
+    background: rgba(255,255,255,0.9);
+    border: none;
+}
+
+.customer-form .form-actions input[type=submit] {
+    background-color: rgba(255,255,255,0.2);
+    border: 2px solid white;
+    color: white;
+}
+
+.customer-form .form-actions input[type=submit]:hover {
+    background-color: white;
+    color: #667eea;
+}
+
+.customer-table th {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.customer-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.customer-table tr:hover {
+    background-color: #e8f5e8;
+}
+
+.customer-id {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.customer-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.customer-email {
+    color: #666;
+}
+
+.customer-date {
+    color: #999;
+    font-size: 12px;
+}
