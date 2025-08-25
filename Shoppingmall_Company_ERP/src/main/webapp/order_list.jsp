@@ -3,11 +3,33 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.io.*" %>
 <%@ page import="com.company1.DBManager" %>
+
 <%
 ResultSet rs = (ResultSet) request.getAttribute("orderList");
 
 // 고객 목록 조회
 Connection conn = com.company1.DBManager.getDBConnection();
+//1. 전체 주문 수
+PreparedStatement totalOrdersStmt = conn.prepareStatement("SELECT COUNT(*) AS cnt FROM orders");
+ResultSet totalOrdersRS = totalOrdersStmt.executeQuery();
+int totalOrders = 0;
+if (totalOrdersRS.next()) totalOrders = totalOrdersRS.getInt("cnt");
+//2. 이번 달 주문 수
+PreparedStatement monthOrdersStmt = conn.prepareStatement(
+    "SELECT COUNT(*) AS cnt FROM orders WHERE TO_CHAR(order_date, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')"
+);
+ResultSet monthOrdersRS = monthOrdersStmt.executeQuery();
+int monthOrders = 0;
+if (monthOrdersRS.next()) monthOrders = monthOrdersRS.getInt("cnt");
+
+//3. 총 매출
+PreparedStatement salesStmt = conn.prepareStatement(
+    "SELECT NVL(SUM(quantity * unit_price), 0) AS total FROM order_items"
+);
+ResultSet salesRS = salesStmt.executeQuery();
+double totalSales = 0;
+if (salesRS.next()) totalSales = salesRS.getDouble("total");
+
 PreparedStatement customerStmt = conn.prepareStatement("SELECT cid, cname FROM customers");
 ResultSet customers = customerStmt.executeQuery();
 
@@ -42,15 +64,15 @@ ResultSet products = productStmt.executeQuery();
     <!-- 통계 섹션 -->
     <div class="stats order-stats">
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= totalOrders %></div>
             <div class="stat-label">전체 주문 수</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= monthOrders %></div>
             <div class="stat-label">이번 달 주문</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= String.format("%,.0f", totalSales) %></div>
             <div class="stat-label">총 매출</div>
         </div>
     </div>
@@ -123,6 +145,12 @@ ResultSet products = productStmt.executeQuery();
           e.printStackTrace();
         } finally {
            if (rs != null) rs.close();
+           if (totalOrdersRS != null) totalOrdersRS.close();
+           if (monthOrdersRS != null) monthOrdersRS.close();
+           if (salesRS != null) salesRS.close();
+           if (totalOrdersStmt != null) totalOrdersStmt.close();
+           if (monthOrdersStmt != null) monthOrdersStmt.close();
+           if (salesStmt != null) salesStmt.close();
             if (customers != null) customers.close();
             if (products != null) products.close();
             if (customerStmt != null) customerStmt.close();
