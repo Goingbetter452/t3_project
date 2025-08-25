@@ -10,7 +10,17 @@
 <body>
 
 <!-- 헤더 포함 -->
-<%@ include file="common-jsp/header.jsp" %>
+  <!-- 헤더 섹션 -->
+    <div class="header">
+        <h1>🏢 Shoppingmall Company ERP</h1>
+        <div class="header-nav">
+            <a href="${pageContext.request.contextPath}/">🏠 대시보드</a>
+            <a href="${pageContext.request.contextPath}/CustomerServlet?command=list">👥 고객 관리</a>
+            <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
+            <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
+            <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
+        </div>
+    </div>
 
 <div class="container">
     <div class="hero-section">

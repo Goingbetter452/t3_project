@@ -2,6 +2,9 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="com.company1.DBManager" %>
 
+<%@ include file="common-jsp/header.jsp" %>
+<link rel="stylesheet" type="text/css" href="css/common.css">
+
 <%
 // 페이징 파라미터 처리
 int pageSize = 10; // 페이지당 상품 수
@@ -61,17 +64,7 @@ int lowStockCount = 0;
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product.css">
 </head>
 <body>
-    <!-- 헤더 섹션 -->
-    <div class="header">
-        <h1>🏢 Shoppingmall Company ERP</h1>
-        <div class="header-nav">
-            <a href="${pageContext.request.contextPath}/">🏠 대시보드</a>
-            <a href="${pageContext.request.contextPath}/CustomerServlet?command=list">👥 고객 관리</a>
-            <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
-            <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
-            <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
-        </div>
-    </div>
+   
 
     <div class="container">
         <!-- 통계 섹션 -->

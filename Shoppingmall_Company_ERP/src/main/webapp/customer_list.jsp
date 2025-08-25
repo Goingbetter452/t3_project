@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.company1.dto.CustomerDTO" %>
-
+<%@ include file="common-jsp/header.jsp" %>
+<link rel="stylesheet" type="text/css" href="css/common.css">
 <%
     // 서블릿에서 전달한 customerList 속성을 List<CustomerDTO> 타입으로 받습니다.
     List<CustomerDTO> customerList = (List<CustomerDTO>) request.getAttribute("customerList");
@@ -16,17 +17,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/customer.css">
 </head>
 <body>
-    <!-- 헤더 섹션 -->
-    <div class="header">
-        <h1>🏢 Shoppingmall Company ERP</h1>
-        <div class="header-nav">
-            <a href="${pageContext.request.contextPath}/">🏠 대시보드</a>
-            <a href="${pageContext.request.contextPath}/CustomerServlet?command=list">👥 고객 관리</a>
-            <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
-            <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
-            <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
-        </div>
-    </div>
+   
 
     <div class="container">
         <!-- 통계 섹션 -->
