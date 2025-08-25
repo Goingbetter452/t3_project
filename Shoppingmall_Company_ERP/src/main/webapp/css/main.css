@@ -3,13 +3,7 @@
    ============================================ */
 
 /* 전체적인 레이아웃과 글꼴 설정 */
-body {
-    font-family: 'Malgun Gothic', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f9fa;
-}
-
+/* body 스타일은 common.css에서 관리 */
 
 /* ============================================
    공통 컨테이너 및 레이아웃
