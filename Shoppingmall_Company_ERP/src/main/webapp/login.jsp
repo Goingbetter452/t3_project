@@ -20,13 +20,18 @@
         </div>
 
    <form action="LoginServlet" method="post" class="login-form">
+   
+   
+   			
+   			<%-- 로그인 텍스트쓰는 공간(인풋) --%>
             <div class="input-group">
-                <input type="text" name="username" placeholder="아이디">
+                <input type="text" name="empId" placeholder="아이디">
             </div>
             <div class="input-group">
-                <input type="password" name="password" placeholder="비밀번호">
+                <input type="password" name="empPw" placeholder="비밀번호">
             </div>
     		
+    		<%-- 로그인 버튼 --%>
     		<button type="submit" class="login-btn">로그인</button>
     		
     		<div class="find-links">
@@ -35,10 +40,9 @@
     			<a href="#">아이디 찾기</a>
     			<span>|</span>
     			<a href="#">회원가입</a>
-    		</div>  
+    		</div>
+    		  
 	</form>
-   
-    </form>
    
 </body>
 </html>

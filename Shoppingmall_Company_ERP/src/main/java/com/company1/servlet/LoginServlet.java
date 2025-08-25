@@ -21,8 +21,8 @@ public class LoginServlet extends HttpServlet {
 		 
 		 // 1. login.jsp에서 사용자가 입력한 데이터 받기
 		 request.setCharacterEncoding("UTF-8");
-		 String id = request.getParameter("username"); // <input name="username">
-		 String pw = request.getParameter("password"); // <input name="password">
+		 String id = request.getParameter("empId"); // <input name="empId" -> 다른 파일과 동일하게 써줘야함>
+		 String pw = request.getParameter("empPw"); // <input name="empPw" -> 이것도 동일하게 써주기>
 		 
 		 
 		 // 2. DAO 객체 생성 (DB에게 일을 시킬 준비)

@@ -159,4 +159,38 @@ public class EmployeeDAO {
 		            DBManager.close(null, pstmt, conn); // ResultSet이 없으므로 첫 인자는 null
 		        }
 		    }
+		 
+		 
+		 /**
+		  * 직원 아이디(empId)를 이용해 특정 직원을 삭제하는 메서드
+		  * @param empId 삭제할 직원의 아이디
+		  * @return 삭제 성공 시 1 이상의 값, 실패 시 0
+		  */
+		 
+		 public int deleteEmployee(String empId) {
+			 Connection conn = null;
+			 PreparedStatement pstmt = null;
+			 int result = 0;   								// 삭제 결과를 저장
+			 
+			 // emp_id 기준으로 해당 직원을 삭제처리하는 SQL쿼리
+			 String sql = "DELETE FROM employees WHERE emp_id = ?";
+			 
+			 try {
+				 conn = DBManager.getDBConnection();
+				 pstmt = conn.prepareStatement(sql);
+				 pstmt.setString(1, empId); 				// SQL 물음표부분에 empId 값넣어주기
+				 
+				 // executeUpdate()는 실행된 행(row)의 수를 반환한다.
+				 // 1명의 직원을 삭제하게되면 결과값으로 1을 반환
+				 result = pstmt.executeUpdate();
+				 
+			 } catch(Exception e) {
+				 e.printStackTrace();
+			 } finally 			  {
+				 DBManager.close(null, pstmt, conn);
+			 }
+			 return result;									// 삭제 결과(성공시 1, 실패하면 0 반환)
+			 
+		 }
+		 
 }
