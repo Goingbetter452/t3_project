@@ -61,6 +61,12 @@ public class GroupwareServlet extends HttpServlet {
             case "addNotice":
                 addNotice(request, response);
                 break;
+            case "updateNotice":
+                updateNotice(request, response);
+                break;
+            case "deleteNotice":
+                deleteNotice(request, response);
+                break;
             case "checkIn":
                 checkIn(request, response);
                 break;
@@ -74,33 +80,24 @@ public class GroupwareServlet extends HttpServlet {
     }
     
     /**
-     * 모든 공지사항을 JSON 형태로 반환합니다.
+     * 모든 공지사항을 텍스트 형태로 반환합니다.
      */
     private void getNotices(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         List<NoticeDTO> notices = groupwareDAO.getAllNotices();
         
         PrintWriter out = response.getWriter();
-        out.print("[");
         for (int i = 0; i < notices.size(); i++) {
             NoticeDTO notice = notices.get(i);
             if (i > 0) out.print(",");
-            out.print("{");
-            out.print("\"noticeId\":" + notice.getNoticeId() + ",");
-            out.print("\"title\":\"" + escapeJson(notice.getTitle()) + "\",");
-            out.print("\"content\":\"" + escapeJson(notice.getContent()) + "\",");
-            out.print("\"authorId\":\"" + escapeJson(notice.getAuthorId()) + "\",");
-            out.print("\"authorName\":\"" + escapeJson(notice.getAuthorName()) + "\",");
-            out.print("\"createDate\":\"" + notice.getCreateDate() + "\",");
-            out.print("\"updateDate\":\"" + notice.getUpdateDate() + "\",");
-            out.print("\"viewCount\":" + notice.getViewCount() + ",");
-            out.print("\"isActive\":\"" + escapeJson(notice.getIsActive()) + "\"");
-            out.print("}");
+            out.print(notice.getTitle() + "|" + 
+                     notice.getContent() + "|" + 
+                     notice.getAuthorName() + "|" + 
+                     notice.getCreateDate());
         }
-        out.print("]");
         out.flush();
     }
     
@@ -109,7 +106,7 @@ public class GroupwareServlet extends HttpServlet {
      */
     private void addNotice(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         String title = request.getParameter("title");
@@ -129,7 +126,7 @@ public class GroupwareServlet extends HttpServlet {
             content == null || content.trim().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             PrintWriter out = response.getWriter();
-            out.print("{\"success\": false, \"message\": \"제목과 내용을 모두 입력해주세요.\"}");
+            out.print("error");
             return;
         }
         
@@ -143,11 +140,91 @@ public class GroupwareServlet extends HttpServlet {
         
         PrintWriter out = response.getWriter();
         if (success) {
-            out.print("{\"success\": true, \"message\": \"공지사항이 등록되었습니다.\"}");
+            out.print("success");
         } else {
-            out.print("{\"success\": false, \"message\": \"공지사항 등록에 실패했습니다.\"}");
+            out.print("error");
         }
         out.flush();
+    }
+    
+    /**
+     * 공지사항을 수정합니다.
+     */
+    private void updateNotice(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        String noticeIdStr = request.getParameter("noticeId");
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+        
+        if (noticeIdStr == null || title == null || title.trim().isEmpty() || 
+            content == null || content.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            return;
+        }
+        
+        try {
+            int noticeId = Integer.parseInt(noticeIdStr);
+            NoticeDTO notice = new NoticeDTO();
+            notice.setNoticeId(noticeId);
+            notice.setTitle(title.trim());
+            notice.setContent(content.trim());
+            
+            boolean success = groupwareDAO.updateNotice(notice);
+            
+            PrintWriter out = response.getWriter();
+            if (success) {
+                out.print("success");
+            } else {
+                out.print("error");
+            }
+            out.flush();
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 공지사항을 삭제합니다.
+     */
+    private void deleteNotice(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        String noticeIdStr = request.getParameter("noticeId");
+        
+        if (noticeIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            return;
+        }
+        
+        try {
+            int noticeId = Integer.parseInt(noticeIdStr);
+            boolean success = groupwareDAO.deleteNotice(noticeId);
+            
+            PrintWriter out = response.getWriter();
+            if (success) {
+                out.print("success");
+            } else {
+                out.print("error");
+            }
+            out.flush();
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
     }
     
     /**
@@ -155,7 +232,7 @@ public class GroupwareServlet extends HttpServlet {
      */
     private void checkIn(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
@@ -169,16 +246,16 @@ public class GroupwareServlet extends HttpServlet {
         
         // 이미 출근했는지 확인
         if (groupwareDAO.isAlreadyCheckedIn(userId)) {
-            out.print("{\"success\": false, \"message\": \"오늘 이미 출근 처리되었습니다.\"}");
+            out.print("error");
             return;
         }
         
         boolean success = groupwareDAO.checkIn(userId);
         
         if (success) {
-            out.print("{\"success\": true, \"message\": \"출근 처리되었습니다.\"}");
+            out.print("success");
         } else {
-            out.print("{\"success\": false, \"message\": \"출근 처리에 실패했습니다.\"}");
+            out.print("error");
         }
         out.flush();
     }
@@ -188,7 +265,7 @@ public class GroupwareServlet extends HttpServlet {
      */
     private void checkOut(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
@@ -202,32 +279,32 @@ public class GroupwareServlet extends HttpServlet {
         
         // 출근 기록이 있는지 확인
         if (!groupwareDAO.isAlreadyCheckedIn(userId)) {
-            out.print("{\"success\": false, \"message\": \"출근 기록이 없습니다.\"}");
+            out.print("error");
             return;
         }
         
         // 이미 퇴근했는지 확인
         if (groupwareDAO.isAlreadyCheckedOut(userId)) {
-            out.print("{\"success\": false, \"message\": \"오늘 이미 퇴근 처리되었습니다.\"}");
+            out.print("error");
             return;
         }
         
         boolean success = groupwareDAO.checkOut(userId);
         
         if (success) {
-            out.print("{\"success\": true, \"message\": \"퇴근 처리되었습니다.\"}");
+            out.print("success");
         } else {
-            out.print("{\"success\": false, \"message\": \"퇴근 처리에 실패했습니다.\"}");
+            out.print("error");
         }
         out.flush();
     }
     
     /**
-     * 오늘의 출퇴근 정보를 JSON 형태로 반환합니다.
+     * 오늘의 출퇴근 정보를 텍스트 형태로 반환합니다.
      */
     private void getTodayAttendance(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
@@ -241,32 +318,22 @@ public class GroupwareServlet extends HttpServlet {
         
         PrintWriter out = response.getWriter();
         if (attendance != null) {
-            out.print("{");
-            out.print("\"attendanceId\":" + attendance.getAttendanceId() + ",");
-            out.print("\"userId\":\"" + escapeJson(attendance.getUserId()) + "\",");
-            out.print("\"workDate\":\"" + attendance.getWorkDate() + "\",");
-            out.print("\"checkInTime\":" + (attendance.getCheckInTime() != null ? "\"" + attendance.getCheckInTime() + "\"" : "null") + ",");
-            out.print("\"checkOutTime\":" + (attendance.getCheckOutTime() != null ? "\"" + attendance.getCheckOutTime() + "\"" : "null") + ",");
-            out.print("\"totalWorkMinutes\":" + attendance.getTotalWorkMinutes() + ",");
-            out.print("\"breakMinutes\":" + attendance.getBreakMinutes() + ",");
-            out.print("\"overtimeMinutes\":" + attendance.getOvertimeMinutes() + ",");
-            out.print("\"status\":\"" + escapeJson(attendance.getStatus()) + "\",");
-            out.print("\"notes\":" + (attendance.getNotes() != null ? "\"" + escapeJson(attendance.getNotes()) + "\"" : "null") + ",");
-            out.print("\"createDate\":\"" + attendance.getCreateDate() + "\",");
-            out.print("\"updateDate\":\"" + attendance.getUpdateDate() + "\"");
-            out.print("}");
+            out.print("checkInTime:" + attendance.getCheckInTime() + ",");
+            out.print("checkOutTime:" + attendance.getCheckOutTime() + ",");
+            out.print("totalWorkMinutes:" + attendance.getTotalWorkMinutes() + ",");
+            out.print("status:" + attendance.getStatus());
         } else {
-            out.print("null");
+            out.print("");
         }
         out.flush();
     }
     
     /**
-     * 월별 출퇴근 정보를 JSON 형태로 반환합니다.
+     * 월별 출퇴근 정보를 텍스트 형태로 반환합니다.
      */
     private void getMonthlyAttendance(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
@@ -286,40 +353,15 @@ public class GroupwareServlet extends HttpServlet {
         List<AttendanceDTO> attendanceList = groupwareDAO.getMonthlyAttendance(userId, yearMonth);
         
         PrintWriter out = response.getWriter();
-        out.print("[");
         for (int i = 0; i < attendanceList.size(); i++) {
             AttendanceDTO attendance = attendanceList.get(i);
             if (i > 0) out.print(",");
-            out.print("{");
-            out.print("\"attendanceId\":" + attendance.getAttendanceId() + ",");
-            out.print("\"userId\":\"" + escapeJson(attendance.getUserId()) + "\",");
-            out.print("\"workDate\":\"" + attendance.getWorkDate() + "\",");
-            out.print("\"checkInTime\":" + (attendance.getCheckInTime() != null ? "\"" + attendance.getCheckInTime() + "\"" : "null") + ",");
-            out.print("\"checkOutTime\":" + (attendance.getCheckOutTime() != null ? "\"" + attendance.getCheckOutTime() + "\"" : "null") + ",");
-            out.print("\"totalWorkMinutes\":" + attendance.getTotalWorkMinutes() + ",");
-            out.print("\"breakMinutes\":" + attendance.getBreakMinutes() + ",");
-            out.print("\"overtimeMinutes\":" + attendance.getOvertimeMinutes() + ",");
-            out.print("\"status\":\"" + escapeJson(attendance.getStatus()) + "\",");
-            out.print("\"notes\":" + (attendance.getNotes() != null ? "\"" + escapeJson(attendance.getNotes()) + "\"" : "null") + ",");
-            out.print("\"createDate\":\"" + attendance.getCreateDate() + "\",");
-            out.print("\"updateDate\":\"" + attendance.getUpdateDate() + "\"");
-            out.print("}");
+            out.print(attendance.getWorkDate() + "|" + 
+                     attendance.getCheckInTime() + "|" + 
+                     attendance.getCheckOutTime() + "|" + 
+                     attendance.getTotalWorkMinutes());
         }
-        out.print("]");
         out.flush();
     }
-    
-    /**
-     * JSON 문자열에서 특수문자를 이스케이프 처리합니다.
-     */
-    private String escapeJson(String str) {
-        if (str == null) return "";
-        return str.replace("\\", "\\\\")
-                  .replace("\"", "\\\"")
-                  .replace("\b", "\\b")
-                  .replace("\f", "\\f")
-                  .replace("\n", "\\n")
-                  .replace("\r", "\\r")
-                  .replace("\t", "\\t");
-    }
+}
 }
