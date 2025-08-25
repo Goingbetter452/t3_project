@@ -132,6 +132,7 @@ int lowStockCount = 0;
                 <tbody>
                     <%
                     try {
+                        int rowNumber = (currentPage - 1) * pageSize + 1; // 행 번호 계산
                         while (rs.next()) {
                             double price = rs.getDouble("price");
                             int stock = rs.getInt("stock");
@@ -150,11 +151,11 @@ int lowStockCount = 0;
                             }
                     %>
                         <tr>
-                            <td class="product-id"><strong>#<%= rs.getInt("pid") %></strong></td>
+                            <td class="product-id"><strong>#<%= rowNumber %></strong></td>
                             <td class="product-name"><strong><%= rs.getString("pname") %></strong></td>
                             <td class="product-price">₩<%= String.format("%,d", (int)price) %></td>
                             <td class="product-stock <%= stockClass %>">
-                                <%= stock %>개
+                                <%= stock %>
                             </td>
                             <td class="product-actions">
                                 <a href="ProductServlet?action=edit&pid=<%= rs.getInt("pid") %>" class="btn-edit">✏️ 수정</a>
@@ -162,6 +163,7 @@ int lowStockCount = 0;
                             </td>
                         </tr>
                     <%
+                            rowNumber++; // 행 번호 증가
                         }
                         
                         // 통계 업데이트를 위한 스크립트
@@ -255,60 +257,6 @@ int lowStockCount = 0;
             %>
         </div>
     </div>
-    
-    <style>
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 30px 0;
-            gap: 5px;
-        }
-        
-        .page-btn {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #333;
-            background-color: #fff;
-            transition: all 0.3s ease;
-        }
-        
-        .page-btn:hover {
-            background-color: #f0f0f0;
-            border-color: #999;
-        }
-        
-        .page-btn.current {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .page-btn.prev,
-        .page-btn.next {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        
-        .page-ellipsis {
-            padding: 8px 12px;
-            color: #666;
-        }
-        
-        .page-info {
-            text-align: center;
-            margin: 20px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .page-info span {
-            margin: 0 10px;
-        }
-    </style>
+ 
 </body>
 </html>
