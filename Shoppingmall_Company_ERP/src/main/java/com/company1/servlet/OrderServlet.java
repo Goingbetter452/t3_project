@@ -86,20 +86,31 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	private void deleteOrder(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
         Connection conn = null;
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt1 = null;
+        PreparedStatement pstmt2 = null;
 
         try {
             int oid = Integer.parseInt(request.getParameter("oid"));
             conn = DBManager.getDBConnection();
-            String sql = "DELETE FROM orders WHERE oid=?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, oid);
-            pstmt.executeUpdate();
+            conn.setAutoCommit(false);
+         // 1. order_items 먼저 삭제
+            String sql1 = "DELETE FROM order_items WHERE order_id = ?";
+            pstmt1 = conn.prepareStatement(sql1);
+            pstmt1.setInt(1, oid);
+            pstmt1.executeUpdate();
+         // 2. orders 삭제
+            String sql2 = "DELETE FROM orders WHERE oid = ?";
+            pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setInt(1, oid);
+            pstmt2.executeUpdate();
+            conn.commit();
 
         } catch(Exception e) {
             e.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch(Exception ex) { ex.printStackTrace(); }
         } finally {
-            DBManager.close(null, pstmt, conn);
+            DBManager.close(null, pstmt1, null);
+            DBManager.close(null, pstmt2, conn);
         }
 
         // 삭제 후 목록 조회
