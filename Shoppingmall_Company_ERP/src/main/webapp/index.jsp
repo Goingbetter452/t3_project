@@ -3,17 +3,29 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>쇼핑몰 회사 ERP 시스템2</title>
+<title>B2B Company ERP 시스템</title>
+<link rel="stylesheet" type="text/css" href="css/common.css">
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
 
 <!-- 헤더 포함 -->
-<%@ include file="common-jsp/header.jsp" %>
+  <!-- 헤더 섹션 -->
+    <div class="header">
+        <h1>🏢 Shoppingmall Company ERP</h1>
+        <div class="header-nav">
+            <a href="${pageContext.request.contextPath}/">🏠 대시보드</a>
+            <a href="${pageContext.request.contextPath}/CustomerServlet?command=list">👥 고객 관리</a>
+            <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
+            <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
+            <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
+            <a href="${pageContext.request.contextPath}/LoginServlet?action=list">🛒 로그인</a>
+        </div>
+    </div>
 
 <div class="container">
     <div class="hero-section">
-        <h1>쇼핑몰 회사 ERP 시스템</h1>
+        <h1>B2B 회사 ERP 시스템</h1>
         <p>효율적인 상품 관리와 주문 처리를 위한 통합 시스템</p>
         <a href="product_main.jsp" class="btn btn-large btn-success">시작하기</a>
     </div>
@@ -34,7 +46,7 @@
         <div class="feature-card">
             <h3>👥 사용자 관리</h3>
             <p>고객 정보 및 관리자 계정 관리</p>
-            <a href="#" class="btn">사용자 관리</a>
+            <a href="employeeServlet?action=list" class="btn">사용자 관리</a>
         </div>
         
         <div class="feature-card">

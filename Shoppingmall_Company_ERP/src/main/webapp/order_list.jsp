@@ -3,11 +3,34 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.io.*" %>
 <%@ page import="com.company1.DBManager" %>
+
 <%
+//서블릿이 조회한 데이터를 orderList에 담았던 것을 가져옴
 ResultSet rs = (ResultSet) request.getAttribute("orderList");
 
 // 고객 목록 조회
 Connection conn = com.company1.DBManager.getDBConnection();
+//1. 전체 주문 수
+PreparedStatement totalOrdersStmt = conn.prepareStatement("SELECT COUNT(*) AS cnt FROM orders");
+ResultSet totalOrdersRS = totalOrdersStmt.executeQuery();
+int totalOrders = 0;
+if (totalOrdersRS.next()) totalOrders = totalOrdersRS.getInt("cnt");
+//2. 이번 달 주문 수
+PreparedStatement monthOrdersStmt = conn.prepareStatement(
+    "SELECT COUNT(*) AS cnt FROM orders WHERE TO_CHAR(order_date, 'YYYYMM') = TO_CHAR(SYSDATE, 'YYYYMM')"
+);
+ResultSet monthOrdersRS = monthOrdersStmt.executeQuery();
+int monthOrders = 0;
+if (monthOrdersRS.next()) monthOrders = monthOrdersRS.getInt("cnt");
+
+//3. 총 매출
+PreparedStatement salesStmt = conn.prepareStatement(
+    "SELECT NVL(SUM(quantity * unit_price), 0) AS total FROM order_items"
+);
+ResultSet salesRS = salesStmt.executeQuery();
+double totalSales = 0;
+if (salesRS.next()) totalSales = salesRS.getDouble("total");
+
 PreparedStatement customerStmt = conn.prepareStatement("SELECT cid, cname FROM customers");
 ResultSet customers = customerStmt.executeQuery();
 
@@ -42,15 +65,15 @@ ResultSet products = productStmt.executeQuery();
     <!-- 통계 섹션 -->
     <div class="stats order-stats">
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= totalOrders %></div>
             <div class="stat-label">전체 주문 수</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= monthOrders %></div>
             <div class="stat-label">이번 달 주문</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number"><%= String.format("%,.0f", totalSales) %></div>
             <div class="stat-label">총 매출</div>
         </div>
     </div>
@@ -100,6 +123,7 @@ ResultSet products = productStmt.executeQuery();
           <th>상품명</th>
           <th>수량</th>
           <th>단가</th>
+          <th>합계금액</th>
           <th>주문일</th>
           <th>삭제</th>
         </tr>
@@ -112,7 +136,8 @@ ResultSet products = productStmt.executeQuery();
           <td class="order-customer"><%= rs.getString("cname") %></td>
           <td class="order-product"><%= rs.getString("pname") %></td>
           <td class="order-quantity"><%= rs.getInt("quantity") %></td>
-          <td class="order-price">₩<%= rs.getDouble("unit_price") %></td>
+          <td class="order-price">₩<%= String.format("%,.0f", rs.getDouble("unit_price")) %></td>
+          <td class="order-total-price">₩<%= String.format("%,.0f",rs.getInt("quantity")*rs.getDouble("unit_price")) %></td>
           <td class="order-date"><%= rs.getTimestamp("order_date") %></td>
           <td class="order-actions"><a href="<%= request.getContextPath() %>/OrderServlet?action=delete&oid=<%= rs.getInt("oid") %>" 
                  class="delete-link" onclick="return confirm('삭제하시겠습니까?');">🗑️ 삭제</a></td>
@@ -123,6 +148,12 @@ ResultSet products = productStmt.executeQuery();
           e.printStackTrace();
         } finally {
            if (rs != null) rs.close();
+           if (totalOrdersRS != null) totalOrdersRS.close();
+           if (monthOrdersRS != null) monthOrdersRS.close();
+           if (salesRS != null) salesRS.close();
+           if (totalOrdersStmt != null) totalOrdersStmt.close();
+           if (monthOrdersStmt != null) monthOrdersStmt.close();
+           if (salesStmt != null) salesStmt.close();
             if (customers != null) customers.close();
             if (products != null) products.close();
             if (customerStmt != null) customerStmt.close();

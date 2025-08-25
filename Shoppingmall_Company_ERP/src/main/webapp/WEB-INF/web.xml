@@ -25,16 +25,6 @@
 		<url-pattern>/EmployeeServlet</url-pattern>
 	</servlet-mapping>
 	
-	<!-- TestServlet for debugging -->
-	<servlet>
-		<servlet-name>TestServlet</servlet-name>
-		<servlet-class>com.company1.servlet.TestServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>TestServlet</servlet-name>
-		<url-pattern>/TestServlet</url-pattern>
-	</servlet-mapping>
-	
 	<!-- OrderServlet mapping (non-annotated) -->
 	<servlet>
 		<servlet-name>OrderServlet</servlet-name>

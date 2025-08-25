@@ -59,7 +59,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
         try {
             conn = DBManager.getDBConnection();
-            String sql = "SELECT o.oid, c.cname, p.pname, oi.quantity, o.order_date "
+            String sql = "SELECT o.oid, c.cname, p.pname, oi.quantity, oi.unit_price, o.order_date "
                         + "FROM orders o "
                         + "JOIN customers c ON o.cid = c.cid "
                         + "JOIN order_items oi ON o.oid = oi.order_id "
@@ -86,20 +86,31 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	private void deleteOrder(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
         Connection conn = null;
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt1 = null;
+        PreparedStatement pstmt2 = null;
 
         try {
             int oid = Integer.parseInt(request.getParameter("oid"));
             conn = DBManager.getDBConnection();
-            String sql = "DELETE FROM orders WHERE oid=?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, oid);
-            pstmt.executeUpdate();
+            conn.setAutoCommit(false);
+         // 1. order_items 먼저 삭제
+            String sql1 = "DELETE FROM order_items WHERE order_id = ?";
+            pstmt1 = conn.prepareStatement(sql1);
+            pstmt1.setInt(1, oid);
+            pstmt1.executeUpdate();
+         // 2. orders 삭제
+            String sql2 = "DELETE FROM orders WHERE oid = ?";
+            pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setInt(1, oid);
+            pstmt2.executeUpdate();
+            conn.commit();
 
         } catch(Exception e) {
             e.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch(Exception ex) { ex.printStackTrace(); }
         } finally {
-            DBManager.close(null, pstmt, conn);
+            DBManager.close(null, pstmt1, null);
+            DBManager.close(null, pstmt2, conn);
         }
 
         // 삭제 후 목록 조회
@@ -113,7 +124,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         PreparedStatement pstmt = null;
 
         try {
-            int productId = Integer.parseInt(request.getParameter("productId"));
+            int productId = Integer.parseInt(request.getParameter("pid"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             int cid = Integer.parseInt(request.getParameter("cid")); // 로그인한 회원 ID
 
@@ -161,6 +172,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             out.println("<script>");
             out.println("alert('주문이 성공적으로 등록되었습니다.');");
             out.println("location.href='" + request.getContextPath() + "/OrderServlet?action=list';");
+            //action변수,list(문자열)
             out.println("</script>");
 
         } catch(Exception e) {
