@@ -1,0 +1,87 @@
+/* 직원 관리 전용 스타일 */
+.employee-stats .stat-item:nth-child(1) .stat-number {
+    color: #2196F3;
+}
+
+.employee-stats .stat-item:nth-child(2) .stat-number {
+    color: #4CAF50;
+}
+
+.employee-stats .stat-item:nth-child(3) .stat-number {
+    color: #FF9800;
+}
+
+.employee-form {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.employee-form h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.3);
+}
+
+.employee-form .form-group label {
+    color: white;
+}
+
+.employee-form .form-group input, .employee-form .form-group select {
+    background: rgba(255,255,255,0.9);
+    border: none;
+}
+
+.employee-form .form-actions input[type=submit] {
+    background-color: rgba(255,255,255,0.2);
+    border: 2px solid white;
+    color: white;
+}
+
+.employee-form .form-actions input[type=submit]:hover {
+    background-color: white;
+    color: #2196F3;
+}
+
+.employee-table th {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+}
+
+.employee-table tr:nth-child(even) {
+    background-color: #f0f8ff;
+}
+
+.employee-table tr:hover {
+    background-color: #e3f2fd;
+}
+
+.employee-id {
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.employee-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.employee-position {
+    color: #666;
+    font-style: italic;
+}
+
+.employee-auth {
+    color: #9C27B0;
+    font-weight: bold;
+    text-align: center;
+}
+
+.employee-auth.admin {
+    color: #f44336;
+}
+
+.employee-auth.user {
+    color: #4CAF50;
+}
