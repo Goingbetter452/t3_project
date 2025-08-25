@@ -99,8 +99,22 @@ public class EmployeeServlet extends HttpServlet {
 	            return;
 
 	        case "delete":
-	            // 직원 삭제 처리
-	            System.out.println("직원 삭제 요청 처리");
+	            // 1. 삭제할 직원의 ID를 요청(request)에서 받아옵니다.
+	            empId = request.getParameter("empId"); 
+	            
+	            // (선택사항) empId가 제대로 넘어왔는지 확인하는 방어 코드
+	            if (empId != null && !empId.trim().isEmpty()) {
+	                
+	                // 2. DAO 객체에게 받아온 ID를 전달하며 삭제를 명령합니다! (가장 중요!)
+	                employeeDAO.deleteEmployee(empId); 
+	                
+	                
+	                System.out.println(empId + " 직원 정보가 삭제되었습니다."); // 확인용 로그
+	            } else {
+	                System.out.println("삭제할 직원 ID가 없습니다."); // 오류 로그
+	            }
+
+	            // 3. 처리가 끝난 후, 최신 목록 페이지로 이동합니다.
 	            response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
 	            return;
 	    }

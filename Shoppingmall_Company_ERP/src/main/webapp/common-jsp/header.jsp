@@ -4,16 +4,6 @@
 <meta charset="UTF-8">
 <link rel="stylesheet" type="text/css" href="css/common.css">
 
-<div class="header">
-    <h1>🏢 B2B Company ERP</h1>
-    <div class="header-nav">
-        <a href="index.jsp">🏠 메인 페이지</a>
-        
-        <div class="dropdown-container">
-            <a href="#">👨‍💼 사용자 관리</a>
-            <div class="dropdown-menu">
-                <a href="employee_form.jsp">직원 등록</a>
-                <a href="EmployeeServlet?command=list">직원 관리</a>
             </div>
         </div>
         
