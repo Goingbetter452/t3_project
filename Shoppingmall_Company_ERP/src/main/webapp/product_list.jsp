@@ -2,7 +2,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="com.company1.DBManager" %>
 
-<%@ include file="common-jsp/header.jsp" %>
 <link rel="stylesheet" type="text/css" href="css/common.css">
 
 <%
@@ -64,7 +63,7 @@ int lowStockCount = 0;
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/product.css">
 </head>
 <body>
-   
+   <%@ include file="common-jsp/header.jsp" %>
 
     <div class="container">
         <!-- 통계 섹션 -->
@@ -84,7 +83,7 @@ int lowStockCount = 0;
         </div>
 
         <!-- 상품 등록 폼 -->
-        <div class="form-section product-form">
+        <div class="product-form">
             <h2>📦 신규 상품 등록</h2>
             <form action="ProductServlet" method="post">
                 <input type="hidden" name="action" value="insert">

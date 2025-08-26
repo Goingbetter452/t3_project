@@ -17,16 +17,7 @@
 </head>
 <body>
     <!-- 헤더 섹션 -->
-    <div class="header">
-        <h1>🏢 Shoppingmall Company ERP</h1>
-        <div class="header-nav">
-            <a href="${pageContext.request.contextPath}/">🏠 대시보드</a>
-            <a href="${pageContext.request.contextPath}/CustomerServlet?command=list">👥 고객 관리</a>
-            <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
-            <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
-            <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
-        </div>
-    </div>
+        <%@ include file="common-jsp/header.jsp" %>
 
     <div class="container">
         <!-- 통계 섹션 -->
@@ -46,7 +37,7 @@
         </div>
 
         <!-- 직원 등록 폼 -->
-        <div class="form-section employee-form">
+        <div class="employee-form">
             <h2>👨‍💼 신규 직원 등록</h2>
             <form action="EmployeeServlet" method="post">
                 <input type="hidden" name="action" value="insert">

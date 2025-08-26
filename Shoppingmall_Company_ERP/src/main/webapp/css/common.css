@@ -53,6 +53,14 @@ body {
     margin-bottom: 30px;
 }
 
+.form-section_orange {
+    background: #FF9800;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
 .form-section h2, .form-section h3 {
     margin-top: 0;
     color: #333;
@@ -405,3 +413,11 @@ tr:hover {
   color: #fff;
   padding-left: 20px;
 }
+
+
+    /* 간단한 스타일 예시 */
+.form-container { width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; background: WHITE;}
+.form-container h1 { text-align: center; }
+.form-container input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+.form-container button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; }
+

@@ -49,6 +49,9 @@ ResultSet products = productStmt.executeQuery();
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/order.css">
 </head>
 <body>
+    <%@ include file="common-jsp/header.jsp" %>
+
+<%--
   <!-- 헤더 섹션 -->
   <div class="header">
       <h1>🏢 Shoppingmall Company ERP</h1>
@@ -60,7 +63,8 @@ ResultSet products = productStmt.executeQuery();
           <a href="<%= request.getContextPath() %>/OrderServlet?action=list">🛒 주문 관리</a>
       </div>
   </div>
-
+ --%>
+ 
   <div class="container">
     <!-- 통계 섹션 -->
     <div class="stats order-stats">

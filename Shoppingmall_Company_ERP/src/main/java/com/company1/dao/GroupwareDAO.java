@@ -105,65 +105,69 @@ public class GroupwareDAO {
      * 퇴근 처리를 합니다.
      */
     public boolean checkOut(String userId) {
+        // 1) 아직 퇴근전인 오늘 레코드에서 출근시간 가져오기
+        final String selectSql =
+            "SELECT CHECK_IN_TIME FROM ATTENDANCE " +
+            "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
 
-        String sql = "UPDATE ATTENDANCE SET CHECK_OUT_TIME = CURRENT_TIMESTAMP " +
-                    "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
-        
-        try (Connection conn = DBManager.getDBConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, userId);
-            int result = pstmt.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        // 2) 근무시간/상태 포함해 갱신
+        final String updateSql =
+            "UPDATE ATTENDANCE SET " +
+            "  CHECK_OUT_TIME = CURRENT_TIMESTAMP, " +
+            "  TOTAL_WORK_MINUTES = ?, " +
+            "  STATUS = CASE " +
+            "    WHEN ? < 480 THEN 'EARLY_LEAVE' " + // 8시간 미만
+            "    WHEN ? > 600 THEN 'OVERTIME' " +    // 10시간 초과
+            "    ELSE 'PRESENT' " +                  // 정상 근무
+            "  END " +
+            "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
 
-        // 먼저 출근 시간을 가져옵니다
-        String selectSql = "SELECT CHECK_IN_TIME FROM ATTENDANCE " +
-                          "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
-        
-        try (Connection conn = DBManager.getDBConnection();
-             PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-            
-            selectStmt.setString(1, userId);
-            ResultSet rs = selectStmt.executeQuery();
-            
-            if (rs.next()) {
-                Timestamp checkInTime = rs.getTimestamp("CHECK_IN_TIME");
-                
-                // 퇴근 시간과 근무시간을 계산하여 업데이트
-                String updateSql = "UPDATE ATTENDANCE SET " +
-                                 "CHECK_OUT_TIME = CURRENT_TIMESTAMP, " +
-                                 "TOTAL_WORK_MINUTES = ?, " +
-                                 "STATUS = CASE " +
-                                 "  WHEN ? < 480 THEN 'EARLY_LEAVE' " +  // 8시간 미만
-                                 "  WHEN ? > 600 THEN 'OVERTIME' " +     // 10시간 초과
-                                 "  ELSE 'PRESENT' " +                    // 정상 근무
-                                 " END " +
-                                 "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
-                
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                    // 근무시간 계산 (분 단위)
-                    long currentTime = System.currentTimeMillis();
-                    long checkInMillis = checkInTime.getTime();
-                    int workMinutes = (int) ((currentTime - checkInMillis) / (1000 * 60));
-                    
-                    updateStmt.setInt(1, workMinutes);
-                    updateStmt.setInt(2, workMinutes);
-                    updateStmt.setInt(3, workMinutes);
-                    updateStmt.setString(4, userId);
-                    
-                    int result = updateStmt.executeUpdate();
-                    return result > 0;
+        try (Connection conn = DBManager.getDBConnection()) {
+            // (선택) 자동 커밋 해제하고 트랜잭션으로 묶고 싶으면 주석 해제
+            // conn.setAutoCommit(false);
+
+            Timestamp checkInTime = null;
+
+            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                ps.setString(1, userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        checkInTime = rs.getTimestamp("CHECK_IN_TIME");
+                    } else {
+                        // 오늘 출근 기록이 없거나 이미 퇴근 처리됨
+                        return false;
+                    }
                 }
             }
+
+            if (checkInTime == null) {
+                return false;
+            }
+
+            // 근무시간(분) 계산
+            long nowMillis = System.currentTimeMillis();
+            long inMillis  = checkInTime.getTime();
+            int workMinutes = (int) ((nowMillis - inMillis) / (1000 * 60));
+
+            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                ps.setInt(1, workMinutes);
+                ps.setInt(2, workMinutes);
+                ps.setInt(3, workMinutes);
+                ps.setString(4, userId);
+                int updated = ps.executeUpdate();
+
+                // (선택) 트랜잭션 사용할 때 커밋
+                // conn.commit();
+
+                return updated > 0;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
+            // (선택) 트랜잭션 사용 시 롤백
+            // try { conn.rollback(); } catch (SQLException ignore) {}
+            return false;
         }
-        return false;
-
     }
     
     /**
@@ -277,8 +281,7 @@ public class GroupwareDAO {
         }
         return attendanceList;
     }
-<<<<<<< HEAD
-=======
+
     
     /**
      * 공지사항을 수정합니다.
@@ -350,5 +353,4 @@ public class GroupwareDAO {
         }
         return null;
     }
->>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
 }

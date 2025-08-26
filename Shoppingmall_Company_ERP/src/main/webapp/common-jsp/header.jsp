@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common.css">
 
-<<<<<<< HEAD
+
     <header>
         <nav>
             <ul class="main-menu">
@@ -28,7 +28,7 @@
                  <li><a href="CustomerServlet?command=list">고객 관리</a></li>
                   <li><a href="groupware.jsp">그룹웨어</a></li>
             </ul>
-
+	</nav>
 			<%-- Session을 사용해서 로그인 상태 확인하기! ( 한울 추가 )--%>
     <div class="user-info">
         <%
@@ -40,9 +40,10 @@
         <%
             } else {
                 // 세션에 userId가 있으면(로그인된 상태) 로그아웃 버튼을 표시합니다.
-        %>
+            } %>
                 <a href="LogoutServlet">로그아웃</a>
-=======
+	</div>
+<%-- 	
 <div class="header">
     <h1>🏢 B2B Company ERP</h1>
 
@@ -72,25 +73,22 @@
 
     <div class="user-info">
         <%-- 세션으로 로그인 상태 표시 --%>
-        <%
+        <%--
             Object uid = session.getAttribute("userId");
             if (uid == null) {
-        %>
-            <a href="${pageContext.request.contextPath}/login.jsp">로그인</a>
-        <%
+        --%>
+            <%--<a href="${pageContext.request.contextPath}/login.jsp">로그인</a>
+        <%--
             } else {
-        %>
-            <a href="${pageContext.request.contextPath}/LogoutServlet">로그아웃</a>
->>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
-        <%
+        --%>
+            <%-- -<a href="${pageContext.request.contextPath}/LogoutServlet">로그아웃</a>
+   --%>         
+        <%--
             }
-        %>
-    </div>
-<<<<<<< HEAD
-        </nav>
+        --%>
+    
+
+        
     </header>
 </body>
 </html>
-=======
-</div>
->>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c

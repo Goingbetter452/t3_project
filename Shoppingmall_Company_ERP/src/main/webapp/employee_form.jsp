@@ -27,13 +27,8 @@
 	<head>
 	<meta charset="UTF-8">
 	<title><%= pageTitle %></title> <%-- 2. 페이지 제목 동적 변경 --%>
-	<style>
-    /* 간단한 스타일 예시 */
-    .form-container { width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; }
-    .form-container h1 { text-align: center; }
-    .form-container input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-    .form-container button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; }
-	</style>
+	<link rel="stylesheet" href="<%= request.getContextPath() %>/css/common.css">
+	
 	<script>
     // 폼 데이터를 제출하기 전에 유효성을 검사하는 함수
     function validateForm() {
@@ -84,10 +79,12 @@
         // 모든 검사를 통과했다면 true를 반환해서 데이터를 서버로 전송해요!
         return true;
     }
+    
 	</script>
 	</head>
+	
 	<body>
-
+	<%@ include file="/common-jsp/header.jsp" %>
     <div class="form-container">
         <h1><%= pageTitle %></h1> <%-- 2. 페이지 제목 동적 변경 --%>
         
