@@ -45,7 +45,11 @@ function updateTime() {
 }
 
 // 공지사항 추가
+<<<<<<< HEAD
 /*function addNotice() {
+=======
+function addNotice() {
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
     const title = document.getElementById('noticeTitle').value.trim();
     const content = document.getElementById('noticeContent').value.trim();
     
@@ -72,10 +76,16 @@ function updateTime() {
     displayNotices();
     alert('공지사항이 등록되었습니다.');
 }
+<<<<<<< HEAD
 */
 
 // 공지사항 표시
 /*function displayNotices() {
+=======
+
+// 공지사항 표시
+function displayNotices() {
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
     const noticeList = document.getElementById('noticeList');
     if (!noticeList) return;
     
@@ -95,7 +105,10 @@ function updateTime() {
         noticeList.appendChild(div);
     });
 }
+<<<<<<< HEAD
 */
+=======
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
 
 // 할일 추가
 function addTodo() {

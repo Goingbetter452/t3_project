@@ -105,6 +105,7 @@ public class GroupwareDAO {
      * 퇴근 처리를 합니다.
      */
     public boolean checkOut(String userId) {
+
         String sql = "UPDATE ATTENDANCE SET CHECK_OUT_TIME = CURRENT_TIMESTAMP " +
                     "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
         
@@ -118,6 +119,51 @@ public class GroupwareDAO {
             e.printStackTrace();
             return false;
         }
+
+        // 먼저 출근 시간을 가져옵니다
+        String selectSql = "SELECT CHECK_IN_TIME FROM ATTENDANCE " +
+                          "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+            
+            selectStmt.setString(1, userId);
+            ResultSet rs = selectStmt.executeQuery();
+            
+            if (rs.next()) {
+                Timestamp checkInTime = rs.getTimestamp("CHECK_IN_TIME");
+                
+                // 퇴근 시간과 근무시간을 계산하여 업데이트
+                String updateSql = "UPDATE ATTENDANCE SET " +
+                                 "CHECK_OUT_TIME = CURRENT_TIMESTAMP, " +
+                                 "TOTAL_WORK_MINUTES = ?, " +
+                                 "STATUS = CASE " +
+                                 "  WHEN ? < 480 THEN 'EARLY_LEAVE' " +  // 8시간 미만
+                                 "  WHEN ? > 600 THEN 'OVERTIME' " +     // 10시간 초과
+                                 "  ELSE 'PRESENT' " +                    // 정상 근무
+                                 " END " +
+                                 "WHERE USER_ID = ? AND WORK_DATE = TRUNC(SYSDATE) AND CHECK_OUT_TIME IS NULL";
+                
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    // 근무시간 계산 (분 단위)
+                    long currentTime = System.currentTimeMillis();
+                    long checkInMillis = checkInTime.getTime();
+                    int workMinutes = (int) ((currentTime - checkInMillis) / (1000 * 60));
+                    
+                    updateStmt.setInt(1, workMinutes);
+                    updateStmt.setInt(2, workMinutes);
+                    updateStmt.setInt(3, workMinutes);
+                    updateStmt.setString(4, userId);
+                    
+                    int result = updateStmt.executeUpdate();
+                    return result > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+
     }
     
     /**
@@ -231,4 +277,78 @@ public class GroupwareDAO {
         }
         return attendanceList;
     }
+<<<<<<< HEAD
+=======
+    
+    /**
+     * 공지사항을 수정합니다.
+     */
+    public boolean updateNotice(NoticeDTO notice) {
+        String sql = "UPDATE NOTICES SET TITLE = ?, CONTENT = ?, UPDATE_DATE = SYSDATE " +
+                    "WHERE NOTICE_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, notice.getTitle());
+            pstmt.setString(2, notice.getContent());
+            pstmt.setInt(3, notice.getNoticeId());
+            
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * 공지사항을 삭제합니다 (논리적 삭제).
+     */
+    public boolean deleteNotice(int noticeId) {
+        String sql = "UPDATE NOTICES SET IS_ACTIVE = 'N' WHERE NOTICE_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, noticeId);
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * 특정 공지사항을 조회합니다.
+     */
+    public NoticeDTO getNoticeById(int noticeId) {
+        String sql = "SELECT * FROM NOTICES WHERE NOTICE_ID = ? AND IS_ACTIVE = 'Y'";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, noticeId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                NoticeDTO notice = new NoticeDTO();
+                notice.setNoticeId(rs.getInt("NOTICE_ID"));
+                notice.setTitle(rs.getString("TITLE"));
+                notice.setContent(rs.getString("CONTENT"));
+                notice.setAuthorId(rs.getString("AUTHOR_ID"));
+                notice.setAuthorName(rs.getString("AUTHOR_NAME"));
+                notice.setCreateDate(rs.getDate("CREATE_DATE"));
+                notice.setUpdateDate(rs.getDate("UPDATE_DATE"));
+                notice.setViewCount(rs.getInt("VIEW_COUNT"));
+                notice.setIsActive(rs.getString("IS_ACTIVE"));
+                return notice;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
 }

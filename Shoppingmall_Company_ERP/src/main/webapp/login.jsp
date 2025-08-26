@@ -37,7 +37,13 @@
     		<div class="find-links">
     			<a href="findPassword.jsp">비밀번호 찾기</a>
     			<span>|</span>
+<<<<<<< HEAD
     			<a href="findId.jsp">아이디 찾기</a>
+=======
+    			<a href="#">아이디 찾기</a>
+    			<span>|</span>
+    			<a href="#">회원가입</a>
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
     		</div>
     		  
 	</form>

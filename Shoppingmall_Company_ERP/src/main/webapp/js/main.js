@@ -3,6 +3,7 @@
 // 전역 변수
 /*let currentDate = new Date();*/
 
+
 // 현재 시간 업데이트
 function updateCurrentTime() {
     const now = new Date();

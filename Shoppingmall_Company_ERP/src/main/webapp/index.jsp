@@ -19,7 +19,10 @@
             <a href="${pageContext.request.contextPath}/EmployeeServlet?action=list">👨‍💼 직원 관리</a>
             <a href="${pageContext.request.contextPath}/ProductServlet?action=list">📦 상품 관리</a>
             <a href="${pageContext.request.contextPath}/OrderServlet?action=list">🛒 주문 관리</a>
+<<<<<<< HEAD
             <a href="${pageContext.request.contextPath}/LoginServlet?action=list">🛒 로그인</a>
+=======
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
         </div>
     </div>
 
@@ -46,7 +49,11 @@
         <div class="feature-card">
             <h3>👥 사용자 관리</h3>
             <p>고객 정보 및 관리자 계정 관리</p>
+<<<<<<< HEAD
             <a href="employeeServlet?action=list" class="btn">사용자 관리</a>
+=======
+            <a href="employee_list.jsp" class="btn">사용자 관리</a>
+>>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
         </div>
         
         <div class="feature-card">
