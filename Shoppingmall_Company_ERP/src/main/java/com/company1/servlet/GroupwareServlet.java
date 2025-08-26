@@ -2,6 +2,7 @@ package com.company1.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import com.company1.dao.GroupwareDAO;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
+import com.company1.dto.CalendarDTO;
 
 @WebServlet("/GroupwareServlet")
 public class GroupwareServlet extends HttpServlet {
@@ -40,6 +42,9 @@ public class GroupwareServlet extends HttpServlet {
                 break;
             case "getMonthlyAttendance":
                 getMonthlyAttendance(request, response);
+                break;
+            case "getMonthlyEvents":  // 추가: 월별 일정 조회
+                getMonthlyEvents(request, response);
                 break;
             default:
                 response.sendRedirect("groupware.jsp");
@@ -73,13 +78,22 @@ public class GroupwareServlet extends HttpServlet {
             case "checkOut":
                 checkOut(request, response);
                 break;
+            case "addEvent":      // 추가: 일정 추가
+                addEvent(request, response);
+                break;
+            case "updateEvent":   // 추가: 일정 수정
+                updateEvent(request, response);
+                break;
+            case "deleteEvent":   // 추가: 일정 삭제
+                deleteEvent(request, response);
+                break;
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid command");
                 break;
         }
     }
     
-	/**
+    /**
      * 모든 공지사항을 텍스트 형태로 반환합니다.
      */
     private void getNotices(HttpServletRequest request, HttpServletResponse response) 
@@ -90,16 +104,26 @@ public class GroupwareServlet extends HttpServlet {
         List<NoticeDTO> notices = groupwareDAO.getAllNotices();
         
         PrintWriter out = response.getWriter();
+        // 날짜를 'yyyy-MM-dd HH:mm:ss' 형식으로 변환하기 위한 포맷터
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         for (int i = 0; i < notices.size(); i++) {
             NoticeDTO notice = notices.get(i);
-            if (i > 0) out.print(",");
-            out.print(notice.getTitle() + "|" + 
-                     notice.getContent() + "|" + 
-                     notice.getAuthorName() + "|" + 
-                     notice.getCreateDate());
-        }
+            if (i > 0) out.print("%%%"); // 레코드 구분자를 '%%%'로 변경
 
+            // 날짜가 null이 아닐 경우에만 포맷팅
+            String createDateStr = (notice.getCreateDate() != null) ? sdf.format(notice.getCreateDate()) : "";
+
+            // 필드 순서: noticeId|title|content|authorName|createDate|viewCount
+            out.print(
+                notice.getNoticeId() + "|" +
+                notice.getTitle().replace("|", " ").replace("%", " ") + "|" + 
+                notice.getContent().replace("|", " ").replace("%", " ") + "|" + 
+                notice.getAuthorName() + "|" + 
+                createDateStr + "|" +
+                notice.getViewCount()
+            );
+        }
         out.flush();
     }
     
@@ -115,13 +139,20 @@ public class GroupwareServlet extends HttpServlet {
         String content = request.getParameter("content");
         
         HttpSession session = request.getSession();
-        String authorId = (String) session.getAttribute("userId");
+        String authorId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         String authorName = (String) session.getAttribute("userName");
         
-        // 세션에 사용자 정보가 없는 경우 기본값 설정
-        if (authorId == null) {
-            authorId = "guest";
-            authorName = "게스트";
+        // 세션에 사용자 정보가 없으면 FK 제약조건을 위반하므로 에러 반환
+        if (authorId == null || authorId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        // authorName 이 없으면 대체값 사용 (NOT NULL 컬럼)
+        if (authorName == null || authorName.trim().isEmpty()) {
+            authorName = authorId;
         }
         
         if (title == null || title.trim().isEmpty() || 
@@ -231,7 +262,6 @@ public class GroupwareServlet extends HttpServlet {
     }
     
     /**
->>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
      * 출근 처리를 합니다.
      */
     private void checkIn(HttpServletRequest request, HttpServletResponse response) 
@@ -240,10 +270,15 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
+        // 사용자 정보가 없으면 FK 제약조건 위반 가능성 -> 에러 반환
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
         }
         
         PrintWriter out = response.getWriter();
@@ -273,10 +308,15 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
+        // 사용자 정보가 없으면 FK 제약조건 위반 가능성 -> 에러 반환
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
         }
         
         PrintWriter out = response.getWriter();
@@ -309,10 +349,14 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
+        // 로그인 정보가 없으면 빈 응답 반환
+        if (userId == null || userId.trim().isEmpty()) {
+            PrintWriter out = response.getWriter();
+            out.print("");
+            out.flush();
+            return;
         }
         
         AttendanceDTO attendance = groupwareDAO.getTodayAttendance(userId);
@@ -337,11 +381,15 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         String yearMonth = request.getParameter("yearMonth");
         
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
+        // 로그인 정보가 없으면 빈 응답 반환
+        if (userId == null || userId.trim().isEmpty()) {
+            PrintWriter out = response.getWriter();
+            out.print("");
+            out.flush();
+            return;
         }
         
         if (yearMonth == null) {
@@ -362,5 +410,174 @@ public class GroupwareServlet extends HttpServlet {
                      attendance.getTotalWorkMinutes());
         }
         out.flush();
+    }
+    
+    // 월별 일정 조회
+    private void getMonthlyEvents(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        String yearMonth = request.getParameter("yearMonth");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        
+        if (yearMonth == null) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            yearMonth = now.getYear() + "-" + String.format("%02d", now.getMonthValue());
+        }
+        
+        List<CalendarDTO> events = groupwareDAO.getMonthlyEvents(userId, yearMonth);
+        
+        PrintWriter out = response.getWriter();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
+        for (int i = 0; i < events.size(); i++) {
+            CalendarDTO event = events.get(i);
+            if (i > 0) out.print("%%%");
+            
+            // eventId|title|description|type|startDate|endDate|isAllDay|location
+            out.print(
+                event.getEventId() + "|" +
+                event.getTitle().replace("|", " ").replace("%", " ") + "|" +
+                event.getDescription().replace("|", " ").replace("%", " ") + "|" +
+                event.getEventType() + "|" +
+                sdf.format(event.getStartDate()) + "|" +
+                sdf.format(event.getEndDate()) + "|" +
+                event.getIsAllDay() + "|" +
+                (event.getLocation() != null ? event.getLocation().replace("|", " ") : "")
+            );
+        }
+        out.flush();
+    }
+    
+    // 일정 추가
+    private void addEvent(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("로그인이 필요합니다.");
+            out.flush();
+            return;
+        }
+        
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            
+            CalendarDTO event = new CalendarDTO();
+            event.setUserId(userId);
+            event.setTitle(request.getParameter("title"));
+            event.setDescription(request.getParameter("description"));
+            event.setEventType(request.getParameter("eventType"));
+            event.setStartDate(new java.sql.Timestamp(sdf.parse(request.getParameter("startDate")).getTime()));
+            event.setEndDate(new java.sql.Timestamp(sdf.parse(request.getParameter("endDate")).getTime()));
+            event.setIsAllDay(request.getParameter("isAllDay"));
+            event.setLocation(request.getParameter("location"));
+            
+            boolean success = groupwareDAO.addEvent(event);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    // 일정 수정
+    private void updateEvent(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("로그인이 필요합니다.");
+            out.flush();
+            return;
+        }
+        
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            
+            CalendarDTO event = new CalendarDTO();
+            event.setEventId(Integer.parseInt(request.getParameter("eventId")));
+            event.setUserId(userId);
+            event.setTitle(request.getParameter("title"));
+            event.setDescription(request.getParameter("description"));
+            event.setEventType(request.getParameter("eventType"));
+            event.setStartDate(new java.sql.Timestamp(sdf.parse(request.getParameter("startDate")).getTime()));
+            event.setEndDate(new java.sql.Timestamp(sdf.parse(request.getParameter("endDate")).getTime()));
+            event.setIsAllDay(request.getParameter("isAllDay"));
+            event.setLocation(request.getParameter("location"));
+            
+            boolean success = groupwareDAO.updateEvent(event);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    // 일정 삭제
+    private void deleteEvent(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("로그인이 필요합니다.");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int eventId = Integer.parseInt(request.getParameter("eventId"));
+            boolean success = groupwareDAO.deleteEvent(eventId, userId);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
     }
 }

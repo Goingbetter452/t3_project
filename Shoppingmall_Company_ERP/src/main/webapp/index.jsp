@@ -55,13 +55,14 @@
         </div>
     </div>
     
+    <%--
     <div style="text-align: center; margin-top: 40px;">
         <h2>빠른 시작</h2>
         <p>새로운 상품을 등록하거나 기존 상품을 관리해보세요.</p>
         <a href="product_add.jsp" class="btn btn-large">상품 추가</a>
         <a href="product_list.jsp" class="btn btn-large">상품 목록</a>
     </div>
-    
+    --%>
     
 </div>
 </body>

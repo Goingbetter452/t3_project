@@ -6,6 +6,7 @@ import java.util.List;
 import com.company1.DBManager;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
+import com.company1.dto.CalendarDTO;
 
 public class GroupwareDAO {
     
@@ -56,9 +57,19 @@ public class GroupwareDAO {
             pstmt.setString(3, notice.getAuthorId());
             pstmt.setString(4, notice.getAuthorName());
             
+            // 실행 전에 값들 로깅
+            System.out.println("Notice Insert 시도: authorId=" + notice.getAuthorId() + 
+                             ", authorName=" + notice.getAuthorName() +
+                             ", title=" + notice.getTitle());
+            
             int result = pstmt.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
+            // FK 위반 에러인 경우 (ORA-02291)
+            if (e.getErrorCode() == 2291) {
+                System.err.println("FK 제약조건 위반: AUTHOR_ID(" + notice.getAuthorId() + 
+                                 ")가 EMPLOYEES 테이블에 존재하지 않습니다.");
+            }
             e.printStackTrace();
             return false;
         }
@@ -352,5 +363,119 @@ public class GroupwareDAO {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    // 캘린더 관련 메서드
+    
+    /**
+     * 특정 월의 일정을 조회합니다.
+     */
+    public List<CalendarDTO> getMonthlyEvents(String userId, String yearMonth) {
+        List<CalendarDTO> events = new ArrayList<>();
+        String sql = "SELECT * FROM CALENDAR_EVENTS WHERE USER_ID = ? " +
+                    "AND TO_CHAR(START_DATE, 'YYYY-MM') = ? ORDER BY START_DATE";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            pstmt.setString(2, yearMonth);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                CalendarDTO event = new CalendarDTO();
+                event.setEventId(rs.getInt("EVENT_ID"));
+                event.setUserId(rs.getString("USER_ID"));
+                event.setTitle(rs.getString("TITLE"));
+                event.setDescription(rs.getString("DESCRIPTION"));
+                event.setEventType(rs.getString("EVENT_TYPE"));
+                event.setStartDate(rs.getTimestamp("START_DATE"));
+                event.setEndDate(rs.getTimestamp("END_DATE"));
+                event.setIsAllDay(rs.getString("IS_ALL_DAY"));
+                event.setLocation(rs.getString("LOCATION"));
+                event.setReminderMinutes(rs.getInt("REMINDER_MINUTES"));
+                event.setIsRecurring(rs.getString("IS_RECURRING"));
+                event.setRecurrencePattern(rs.getString("RECURRENCE_PATTERN"));
+                events.add(event);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return events;
+    }
+    
+    /**
+     * 새로운 일정을 추가합니다.
+     */
+    public boolean addEvent(CalendarDTO event) {
+        String sql = "INSERT INTO CALENDAR_EVENTS (EVENT_ID, USER_ID, TITLE, DESCRIPTION, " +
+                    "EVENT_TYPE, START_DATE, END_DATE, IS_ALL_DAY, LOCATION) " +
+                    "VALUES (SEQ_EVENT_ID.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, event.getUserId());
+            pstmt.setString(2, event.getTitle());
+            pstmt.setString(3, event.getDescription());
+            pstmt.setString(4, event.getEventType());
+            pstmt.setTimestamp(5, event.getStartDate());
+            pstmt.setTimestamp(6, event.getEndDate());
+            pstmt.setString(7, event.getIsAllDay());
+            pstmt.setString(8, event.getLocation());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * 일정을 수정합니다.
+     */
+    public boolean updateEvent(CalendarDTO event) {
+        String sql = "UPDATE CALENDAR_EVENTS SET TITLE = ?, DESCRIPTION = ?, " +
+                    "EVENT_TYPE = ?, START_DATE = ?, END_DATE = ?, " +
+                    "IS_ALL_DAY = ?, LOCATION = ? " +
+                    "WHERE EVENT_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, event.getTitle());
+            pstmt.setString(2, event.getDescription());
+            pstmt.setString(3, event.getEventType());
+            pstmt.setTimestamp(4, event.getStartDate());
+            pstmt.setTimestamp(5, event.getEndDate());
+            pstmt.setString(6, event.getIsAllDay());
+            pstmt.setString(7, event.getLocation());
+            pstmt.setInt(8, event.getEventId());
+            pstmt.setString(9, event.getUserId());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * 일정을 삭제합니다.
+     */
+    public boolean deleteEvent(int eventId, String userId) {
+        String sql = "DELETE FROM CALENDAR_EVENTS WHERE EVENT_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, eventId);
+            pstmt.setString(2, userId);
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

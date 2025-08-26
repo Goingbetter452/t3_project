@@ -24,6 +24,19 @@
 		<p>효율적인 업무 협업을 위한 통합 워크스페이스</p>
 	</div>
 
+	<!-- 세션 디버깅 (임시) -->
+	<div id="sessionDebug" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+		세션 상태: 
+		<%
+			String currentUser = (String) session.getAttribute("loginUser");
+			if(currentUser != null && !currentUser.trim().isEmpty()) {
+				out.print("로그인됨 (ID: " + currentUser + ")");
+			} else {
+				out.print("로그인 필요");
+			}
+		%>
+	</div>
+
 	<div class="groupware-container">
 		<!-- 공지사항 섹션 -->
 		<div class="groupware-section notice-section">

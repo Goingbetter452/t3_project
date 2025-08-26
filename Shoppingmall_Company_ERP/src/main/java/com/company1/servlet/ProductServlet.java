@@ -1,8 +1,12 @@
 package com.company1.servlet;
 
 import com.company1.DBManager;
+import com.company1.dao.ProductDAO;
+import com.company1.dto.ProductDTO;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,8 +16,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
+
+@WebServlet(urlPatterns = {"/product", "/product/list", "/product/edit", "/product/delete"})
 public class ProductServlet extends HttpServlet {
+
+	private final ProductDAO productDAO = new ProductDAO();
 
     // Servlet이 처음 로드될 때 초기화합니다.
     public void init() {
@@ -24,14 +33,26 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action"); // action 파라미터를 통해 어떤 작업을 수행할지 결정합니다.
+        String pathInfo = request.getPathInfo();
+        String action = request.getParameter("action");
+        
+        // action 파라미터가 없으면 요청 경로에서 action 유추
         if (action == null) {
-            action = "list";
+            if (pathInfo == null || "/list".equals(pathInfo)) {
+                action = "list";
+            } else if ("/edit".equals(pathInfo)) {
+                action = "edit";
+            } else if ("/delete".equals(pathInfo)) {
+                action = "delete";
+            } else {
+                action = "list";  // 기본값
+            }
         }
 
         switch (action) {
             case "list":
-                listProducts(request, response);
+            case "search":
+                listOrSearchProducts(request, response);
                 break;
             case "delete":
                 deleteProduct(request, response);
@@ -40,12 +61,12 @@ public class ProductServlet extends HttpServlet {
                 editProductForm(request, response);
                 break;
             default:
-                listProducts(request, response);
+                listOrSearchProducts(request, response);
                 break;
         }
     }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    // 상품 목록 조회 및 검색 메소드
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
 
@@ -62,29 +83,70 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-    // Updated database handling to align with OrderServlet
-    private void listProducts(HttpServletRequest request, HttpServletResponse response)
+	 private void listOrSearchProducts(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+
+        String action = req.getParameter("action");
+        String search = req.getParameter("search");
+        String pageParam = req.getParameter("page");
+        
+        // 페이징 파라미터 처리
+        int currentPage = 1;
+        int recordsPerPage = 10;
+        
+        if (pageParam != null) {
+            try {
+                currentPage = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                // 유효하지 않은 페이지 파라미터는 무시하고 1페이지로
+            }
+        }
+        
+        boolean hasKeyword = (search != null && !search.trim().isEmpty());
+        int offset = (currentPage - 1) * recordsPerPage;
 
         try {
-            conn = DBManager.getDBConnection();
-            String sql = "SELECT pid, pname, price, stock FROM products ORDER BY pname ASC";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            request.setAttribute("productList", rs);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("product_list.jsp");
-            dispatcher.forward(request, response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DBManager.close(rs, pstmt, conn);
+            List<ProductDTO> products;
+            int totalRecords;
+            
+            if (hasKeyword) {
+                products = productDAO.searchProducts(search.trim(), offset, recordsPerPage);
+                totalRecords = productDAO.getNumberOfRecords(search.trim());
+            } else {
+                products = productDAO.getAllProducts(offset, recordsPerPage);
+                totalRecords = productDAO.getNumberOfRecords();
+            }
+            
+            int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+            
+            // 결과를 request에 저장
+            req.setAttribute("products", products);
+            req.setAttribute("search", search);
+            req.setAttribute("currentPage", currentPage);
+            req.setAttribute("recordsPerPage", recordsPerPage);
+            req.setAttribute("noOfRecords", totalRecords);
+            req.setAttribute("noOfPages", totalPages);
+            
+            // 디버깅용 로그
+            System.out.println("[Product] action=" + action + 
+                             ", keyword=" + search + 
+                             ", page=" + currentPage + 
+                             ", total=" + totalRecords);
+            
+        } catch (SQLException e) {
+            throw new ServletException("Database error occurred", e);
         }
+
+        req.getRequestDispatcher("/product_list.jsp").forward(req, resp);
     }
+
+
+	// 위에 붙여둔 escapeLike 그대로 사용
+	private String escapeLike(String s) {
+	    if (s == null) return "";
+	    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+	}
+
 
     private void insertProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -110,7 +172,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-        listProducts(request, response);
+        listOrSearchProducts(request, response);
     }
 
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
@@ -132,7 +194,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-        listProducts(request, response);
+        listOrSearchProducts(request, response);
     }
 
     // 상품 정보를 수정하는 메소드
@@ -162,7 +224,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-        listProducts(request, response);
+        listOrSearchProducts(request, response);
     }
 
     // 상품 수정 폼을 보여주는 메소드
@@ -172,4 +234,6 @@ public class ProductServlet extends HttpServlet {
         response.getWriter().println("<h2>상품 수정 폼</h2>");
         response.getWriter().println("<p>아직 구현되지 않았습니다.</p>");
     }
+    
+    
 }
