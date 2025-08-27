@@ -320,35 +320,100 @@
     border: 1px solid #ddd;
 }
 
+.message.unread {
+    border: 2px solid #ffc107;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.message-content {
+    word-break: break-word;
+    margin: 5px 0;
+}
+
 .message-info {
-    font-size: 11px;
-    margin-top: 5px;
-    opacity: 0.7;
+    font-size: 0.8em;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.message-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.message-actions button {
+    padding: 2px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.reply-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.read-mark {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    margin-left: 5px;
 }
 
 .messenger-form {
     display: flex;
     gap: 10px;
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #ddd;
 }
 
-.messenger-form input[type="text"] {
-    flex: 1;
-    padding: 10px;
+#messageReceiver {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
     border: 1px solid #ddd;
-    border-radius: 20px;
+    border-radius: 4px;
+}
+
+.message-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .messenger-form button {
-    background: #6c5ce7;
+    padding: 8px 20px;
+    background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
+    border-radius: 4px;
     cursor: pointer;
 }
 
 .messenger-form button:hover {
-    background: #4a29a0;
+    background-color: #0056b3;
 }
 
 /* 캘린더 스타일 */

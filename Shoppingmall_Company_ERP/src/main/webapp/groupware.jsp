@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 
 	pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, java.text.*, java.time.*"%>
+<%@ page import="java.util.*, java.text.*, java.time.*, com.company1.dao.*, com.company1.dto.*" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,6 +12,8 @@
 	href="${pageContext.request.contextPath}/css/common.css">
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/groupware.css">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/calendar.css">
 
 </head>
 <body>
@@ -126,9 +128,31 @@
 				<!-- 채팅 메시지가 여기에 표시됩니다 -->
 			</div>
 			<div class="messenger-form">
-				<input type="text" id="messageInput" placeholder="메시지를 입력하세요..."
-					maxlength="200" onkeypress="if(event.keyCode==13) sendMessage()">
-				<button onclick="sendMessage()">전송</button>
+				<select id="messageReceiver">
+					<option value="ALL">전체</option>
+					<% 
+					try {
+						EmployeeDAO employeeDAO = new EmployeeDAO();
+						List<EmployeeDTO> employees = employeeDAO.getAllEmployees();
+						if(employees != null) {
+							for(EmployeeDTO emp : employees) {
+								if(!emp.getEmpId().equals(currentUser)) {
+					%>
+									<option value="<%=emp.getEmpId()%>"><%=emp.getEmpName()%> (<%=emp.getEmpId()%>)</option>
+					<%
+								}
+							}
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+					%>
+				</select>
+				<div class="message-input-container">
+					<input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
+						   maxlength="200" onkeypress="if(event.keyCode==13) sendMessage()">
+					<button onclick="sendMessage()">전송</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -136,6 +160,10 @@
 	<script src="${pageContext.request.contextPath}/js/jquery-3.7.1.js"></script>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script src="${pageContext.request.contextPath}/js/notice_admin.js"></script>
+    <script>
+    <% String __cu = (String)session.getAttribute("loginUser"); if (__cu == null) __cu = ""; %>
+    window.CURRENT_USER_ID = '<%= __cu.replace("'", "\\'") %>';
+    </script>
     <script src="${pageContext.request.contextPath}/js/groupware.js"></script>
 	<!-- JavaScript 코드는 별도 파일로 분리되었습니다 -->
 

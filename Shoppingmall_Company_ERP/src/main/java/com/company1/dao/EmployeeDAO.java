@@ -202,5 +202,27 @@ public class EmployeeDAO {
 			    return foundId;
 			}
 		 
+		 public List<EmployeeDTO> getAllEmployees() {
+		        List<EmployeeDTO> employees = new ArrayList<>();
+		        String sql = "SELECT EMP_ID, EMP_NAME, POSITION, AUTH FROM EMPLOYEES ORDER BY EMP_NAME";
+		        
+		        try (Connection conn = DBManager.getDBConnection();
+		             PreparedStatement pstmt = conn.prepareStatement(sql);
+		             ResultSet rs = pstmt.executeQuery()) {
+		            
+		            while (rs.next()) {
+		                EmployeeDTO emp = new EmployeeDTO();
+		                emp.setEmpId(rs.getString("EMP_ID"));
+		                emp.setEmpName(rs.getString("EMP_NAME"));
+		                emp.setPosition(rs.getString("POSITION"));
+		                emp.setAuth(rs.getString("AUTH"));
+		                employees.add(emp);
+		            }
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		        }
+		        
+		        return employees;
+		    }
 
 }

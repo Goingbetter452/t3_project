@@ -7,6 +7,8 @@ import com.company1.DBManager;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
 import com.company1.dto.CalendarDTO;
+import com.company1.dto.MessageDTO;
+import com.company1.dto.TodoDTO;
 
 public class GroupwareDAO {
     
@@ -365,15 +367,16 @@ public class GroupwareDAO {
         return null;
     }
     
-    // 캘린더 관련 메서드
+    // ===== 캘린더 관련 메서드 =====
     
     /**
-     * 특정 월의 일정을 조회합니다.
+     * 특정 월의 사용자 일정을 조회합니다.
      */
     public List<CalendarDTO> getMonthlyEvents(String userId, String yearMonth) {
         List<CalendarDTO> events = new ArrayList<>();
         String sql = "SELECT * FROM CALENDAR_EVENTS WHERE USER_ID = ? " +
-                    "AND TO_CHAR(START_DATE, 'YYYY-MM') = ? ORDER BY START_DATE";
+                    "AND TO_CHAR(START_DATE, 'YYYY-MM') = ? " +
+                    "ORDER BY START_DATE";
         
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -393,9 +396,6 @@ public class GroupwareDAO {
                 event.setEndDate(rs.getTimestamp("END_DATE"));
                 event.setIsAllDay(rs.getString("IS_ALL_DAY"));
                 event.setLocation(rs.getString("LOCATION"));
-                event.setReminderMinutes(rs.getInt("REMINDER_MINUTES"));
-                event.setIsRecurring(rs.getString("IS_RECURRING"));
-                event.setRecurrencePattern(rs.getString("RECURRENCE_PATTERN"));
                 events.add(event);
             }
         } catch (SQLException e) {
@@ -427,8 +427,8 @@ public class GroupwareDAO {
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
     
     /**
@@ -436,9 +436,8 @@ public class GroupwareDAO {
      */
     public boolean updateEvent(CalendarDTO event) {
         String sql = "UPDATE CALENDAR_EVENTS SET TITLE = ?, DESCRIPTION = ?, " +
-                    "EVENT_TYPE = ?, START_DATE = ?, END_DATE = ?, " +
-                    "IS_ALL_DAY = ?, LOCATION = ? " +
-                    "WHERE EVENT_ID = ? AND USER_ID = ?";
+                    "EVENT_TYPE = ?, START_DATE = ?, END_DATE = ?, IS_ALL_DAY = ?, " +
+                    "LOCATION = ? WHERE EVENT_ID = ? AND USER_ID = ?";
         
         try (Connection conn = DBManager.getDBConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -456,8 +455,8 @@ public class GroupwareDAO {
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
     
     /**
@@ -475,7 +474,523 @@ public class GroupwareDAO {
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
+    }
+    
+    /**
+     * 특정 일정을 ID로 조회합니다.
+     */
+    public CalendarDTO getEventById(int eventId, String userId) {
+        String sql = "SELECT * FROM CALENDAR_EVENTS WHERE EVENT_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, eventId);
+            pstmt.setString(2, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                CalendarDTO event = new CalendarDTO();
+                event.setEventId(rs.getInt("EVENT_ID"));
+                event.setUserId(rs.getString("USER_ID"));
+                event.setTitle(rs.getString("TITLE"));
+                event.setDescription(rs.getString("DESCRIPTION"));
+                event.setEventType(rs.getString("EVENT_TYPE"));
+                event.setStartDate(rs.getTimestamp("START_DATE"));
+                event.setEndDate(rs.getTimestamp("END_DATE"));
+                event.setIsAllDay(rs.getString("IS_ALL_DAY"));
+                event.setLocation(rs.getString("LOCATION"));
+                return event;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    // ===== 메시지 관련 메서드 =====
+    
+    /**
+     * 새로운 메시지를 전송합니다.
+     */
+    public boolean sendMessage(MessageDTO message) {
+        String sql = "INSERT INTO MESSAGES (MESSAGE_ID, SENDER_ID, SENDER_NAME, RECEIVER_ID, " +
+                    "RECEIVER_NAME, MESSAGE_TYPE, CONTENT, IS_READ, SEND_DATE) " +
+                    "VALUES (SEQ_MESSAGE_ID.NEXTVAL, ?, ?, ?, ?, ?, ?, 'N', CURRENT_TIMESTAMP)";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, message.getSenderId());
+            pstmt.setString(2, message.getSenderName());
+            pstmt.setString(3, message.getReceiverId());
+            pstmt.setString(4, message.getReceiverName());
+            pstmt.setString(5, message.getMessageType());
+            pstmt.setString(6, message.getContent());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 사용자가 받은 메시지 목록을 조회합니다.
+     */
+    public List<MessageDTO> getReceivedMessages(String userId, int limit) {
+        List<MessageDTO> messages = new ArrayList<>();
+        String sql = "SELECT * FROM (" +
+                    "  SELECT * FROM MESSAGES " +
+                    "  WHERE RECEIVER_ID = ? OR RECEIVER_ID IS NULL " +
+                    "  ORDER BY SEND_DATE DESC" +
+                    ") WHERE ROWNUM <= ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            pstmt.setInt(2, limit);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                MessageDTO message = new MessageDTO();
+                message.setMessageId(rs.getInt("MESSAGE_ID"));
+                message.setSenderId(rs.getString("SENDER_ID"));
+                message.setSenderName(rs.getString("SENDER_NAME"));
+                message.setReceiverId(rs.getString("RECEIVER_ID"));
+                message.setReceiverName(rs.getString("RECEIVER_NAME"));
+                message.setMessageType(rs.getString("MESSAGE_TYPE"));
+                message.setContent(rs.getString("CONTENT"));
+                message.setIsRead(rs.getString("IS_READ"));
+                message.setSendDate(rs.getTimestamp("SEND_DATE"));
+                message.setReadDate(rs.getTimestamp("READ_date"));
+                messages.add(message);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+    
+    /**
+     * 사용자가 보낸 메시지 목록을 조회합니다.
+     */
+    public List<MessageDTO> getSentMessages(String userId, int limit) {
+        List<MessageDTO> messages = new ArrayList<>();
+        String sql = "SELECT * FROM (" +
+                    "  SELECT * FROM MESSAGES " +
+                    "  WHERE SENDER_ID = ? " +
+                    "  ORDER BY SEND_DATE DESC" +
+                    ") WHERE ROWNUM <= ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            pstmt.setInt(2, limit);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                MessageDTO message = new MessageDTO();
+                message.setMessageId(rs.getInt("MESSAGE_ID"));
+                message.setSenderId(rs.getString("SENDER_ID"));
+                message.setSenderName(rs.getString("SENDER_NAME"));
+                message.setReceiverId(rs.getString("RECEIVER_ID"));
+                message.setReceiverName(rs.getString("RECEIVER_NAME"));
+                message.setMessageType(rs.getString("MESSAGE_TYPE"));
+                message.setContent(rs.getString("CONTENT"));
+                message.setIsRead(rs.getString("IS_READ"));
+                message.setSendDate(rs.getTimestamp("SEND_DATE"));
+                message.setReadDate(rs.getTimestamp("read_date"));
+                messages.add(message);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+    
+    /**
+     * 특정 사용자 간의 대화 내역을 조회합니다.
+     */
+    public List<MessageDTO> getConversation(String userId1, String userId2, int limit) {
+        List<MessageDTO> messages = new ArrayList<>();
+        String sql = "SELECT * FROM (" +
+                    "  SELECT * FROM MESSAGES " +
+                    "  WHERE (SENDER_ID = ? AND RECEIVER_ID = ?) " +
+                    "     OR (SENDER_ID = ? AND RECEIVER_ID = ?) " +
+                    "  ORDER BY SEND_DATE DESC" +
+                    ") WHERE ROWNUM <= ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId1);
+            pstmt.setString(2, userId2);
+            pstmt.setString(3, userId2);
+            pstmt.setString(4, userId1);
+            pstmt.setInt(5, limit);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                MessageDTO message = new MessageDTO();
+                message.setMessageId(rs.getInt("MESSAGE_ID"));
+                message.setSenderId(rs.getString("SENDER_ID"));
+                message.setSenderName(rs.getString("SENDER_NAME"));
+                message.setReceiverId(rs.getString("RECEIVER_ID"));
+                message.setReceiverName(rs.getString("RECEIVER_NAME"));
+                message.setMessageType(rs.getString("MESSAGE_TYPE"));
+                message.setContent(rs.getString("CONTENT"));
+                message.setIsRead(rs.getString("IS_READ"));
+                message.setSendDate(rs.getTimestamp("SEND_DATE"));
+                message.setReadDate(rs.getTimestamp("read_date"));
+                messages.add(message);
+            }
+            
+            // 시간순으로 정렬 (오래된 것부터)
+            messages.sort((m1, m2) -> m1.getSendDate().compareTo(m2.getSendDate()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+    
+    /**
+     * 사용자의 메시지 목록을 조회합니다.
+     * 수신한 메시지와 발신한 메시지를 모두 포함합니다.
+     */
+    public List<MessageDTO> getUserMessages(String userId) {
+        List<MessageDTO> messages = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        String sql = "SELECT M.*, " +
+                    "S.EMP_NAME AS SENDER_NAME, " +
+                    "R.EMP_NAME AS RECEIVER_NAME " +
+                    "FROM MESSAGES M " +
+                    "LEFT JOIN EMPLOYEES S ON M.SENDER_ID = S.EMP_ID " +
+                    "LEFT JOIN EMPLOYEES R ON M.RECEIVER_ID = R.EMP_ID " +
+                    "WHERE M.SENDER_ID = ? OR M.RECEIVER_ID = ? OR M.MESSAGE_TYPE = 'BROADCAST' " +
+                    "ORDER BY M.SEND_DATE DESC";
+        
+        try {
+            conn = DBManager.getDBConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userId);
+            pstmt.setString(2, userId);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                MessageDTO msg = new MessageDTO();
+                msg.setMessageId(rs.getInt("MESSAGE_ID"));
+                msg.setSenderId(rs.getString("SENDER_ID"));
+                msg.setSenderName(rs.getString("SENDER_NAME"));
+                msg.setReceiverId(rs.getString("RECEIVER_ID"));
+                msg.setReceiverName(rs.getString("RECEIVER_NAME"));
+                msg.setMessageType(rs.getString("MESSAGE_TYPE"));
+                msg.setContent(rs.getString("CONTENT"));
+                msg.setIsRead(rs.getString("IS_READ"));
+                msg.setSendDate(rs.getTimestamp("SEND_DATE"));
+                
+                Timestamp readDate = rs.getTimestamp("READ_DATE");
+                if (readDate != null) {
+                    msg.setReadDate(readDate);
+                }
+                
+                messages.add(msg);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(rs, pstmt, conn);
+        }
+        
+        return messages;
+    }
+
+    /**
+     * 메시지를 삭제합니다.
+     */
+    public boolean deleteMessage(int messageId, String userId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        int result = 0;
+        
+        String sql = "DELETE FROM MESSAGES WHERE MESSAGE_ID = ? AND (SENDER_ID = ? OR RECEIVER_ID = ?)";
+        
+        try {
+            conn = DBManager.getDBConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, messageId);
+            pstmt.setString(2, userId);
+            pstmt.setString(3, userId);
+            result = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(null, pstmt, conn);
+        }
+        
+        return result > 0;
+    }
+
+    /**
+     * 메시지를 읽음 표시합니다.
+     */
+    public boolean markMessageAsRead(int messageId, String userId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        int result = 0;
+        
+        String sql = "UPDATE MESSAGES SET IS_READ = 'Y', READ_DATE = CURRENT_TIMESTAMP " +
+                    "WHERE MESSAGE_ID = ? AND RECEIVER_ID = ? AND IS_READ = 'N'";
+        
+        try {
+            conn = DBManager.getDBConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, messageId);
+            pstmt.setString(2, userId);
+            result = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBManager.close(null, pstmt, conn);
+        }
+        
+        return result > 0;
+    }
+
+    /**
+     * 사용자의 읽지 않은 메시지 개수를 조회합니다.
+     */
+    public int getUnreadMessageCount(String userId) {
+        String sql = "SELECT COUNT(*) FROM MESSAGES " +
+                    "WHERE RECEIVER_ID = ? AND IS_READ = 'N'";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * 브로드캐스트 메시지를 전송합니다 (전체 공지용).
+     */
+    public boolean sendBroadcastMessage(MessageDTO message) {
+        String sql = "INSERT INTO MESSAGES (MESSAGE_ID, SENDER_ID, SENDER_NAME, " +
+                    "MESSAGE_TYPE, CONTENT, IS_READ, SEND_DATE) " +
+                    "VALUES (SEQ_MESSAGE_ID.NEXTVAL, ?, ?, 'BROADCAST', ?, 'N', CURRENT_TIMESTAMP)";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, message.getSenderId());
+            pstmt.setString(2, message.getSenderName());
+            pstmt.setString(3, message.getContent());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 특정 메시지를 ID로 조회합니다.
+     */
+    public MessageDTO getMessageById(int messageId) {
+        String sql = "SELECT * FROM MESSAGES WHERE MESSAGE_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, messageId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                MessageDTO message = new MessageDTO();
+                message.setMessageId(rs.getInt("MESSAGE_ID"));
+                message.setSenderId(rs.getString("SENDER_ID"));
+                message.setSenderName(rs.getString("SENDER_NAME"));
+                message.setReceiverId(rs.getString("RECEIVER_ID"));
+                message.setReceiverName(rs.getString("RECEIVER_NAME"));
+                message.setMessageType(rs.getString("MESSAGE_TYPE"));
+                message.setContent(rs.getString("CONTENT"));
+                message.setIsRead(rs.getString("IS_READ"));
+                message.setSendDate(rs.getTimestamp("SEND_DATE"));
+                message.setReadDate(rs.getTimestamp("read_date"));
+                return message;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    // ===== 할일 관리 관련 메서드 =====
+    
+    /**
+     * 특정 사용자의 할일 목록을 조회합니다.
+     */
+    public List<TodoDTO> getUserTodos(String userId) {
+        List<TodoDTO> todos = new ArrayList<>();
+        String sql = "SELECT * FROM TODOS WHERE USER_ID = ? ORDER BY CREATE_DATE DESC";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                TodoDTO todo = new TodoDTO();
+                todo.setTodoId(rs.getInt("TODO_ID"));
+                todo.setUserId(rs.getString("USER_ID"));
+                todo.setTitle(rs.getString("TITLE"));
+                todo.setDescription(rs.getString("DESCRIPTION"));
+                todo.setIsCompleted(rs.getString("IS_COMPLETED"));
+                todo.setPriority(rs.getInt("PRIORITY"));
+                todo.setDueDate(rs.getDate("DUE_DATE"));
+                todo.setCreateDate(rs.getDate("CREATE_DATE"));
+                todo.setCompleteDate(rs.getDate("COMPLETE_DATE"));
+                todos.add(todo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return todos;
+    }
+    
+    /**
+     * 새로운 할일을 추가합니다.
+     */
+    public boolean addTodo(TodoDTO todo) {
+        String sql = "INSERT INTO TODOS (TODO_ID, USER_ID, TITLE, DESCRIPTION, PRIORITY, DUE_DATE) " +
+                    "VALUES (SEQ_TODO_ID.NEXTVAL, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, todo.getUserId());
+            pstmt.setString(2, todo.getTitle());
+            pstmt.setString(3, todo.getDescription());
+            pstmt.setInt(4, todo.getPriority());
+            pstmt.setDate(5, todo.getDueDate());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 할일을 수정합니다.
+     */
+    public boolean updateTodo(TodoDTO todo) {
+        String sql = "UPDATE TODOS SET TITLE = ?, DESCRIPTION = ?, PRIORITY = ?, DUE_DATE = ? " +
+                    "WHERE TODO_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, todo.getTitle());
+            pstmt.setString(2, todo.getDescription());
+            pstmt.setInt(3, todo.getPriority());
+            pstmt.setDate(4, todo.getDueDate());
+            pstmt.setInt(5, todo.getTodoId());
+            pstmt.setString(6, todo.getUserId());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 할일을 삭제합니다.
+     */
+    public boolean deleteTodo(int todoId, String userId) {
+        String sql = "DELETE FROM TODOS WHERE TODO_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, todoId);
+            pstmt.setString(2, userId);
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 할일의 완료/미완료 상태를 토글합니다.
+     */
+    public boolean toggleTodoCompletion(int todoId, String userId) {
+        String sql = "UPDATE TODOS SET " +
+                    "IS_COMPLETED = CASE WHEN IS_COMPLETED = 'Y' THEN 'N' ELSE 'Y' END, " +
+                    "COMPLETE_DATE = CASE WHEN IS_COMPLETED = 'Y' THEN NULL ELSE SYSDATE END " +
+                    "WHERE TODO_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, todoId);
+            pstmt.setString(2, userId);
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * 특정 할일을 ID로 조회합니다.
+     */
+    public TodoDTO getTodoById(int todoId, String userId) {
+        String sql = "SELECT * FROM TODOS WHERE TODO_ID = ? AND USER_ID = ?";
+        
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, todoId);
+            pstmt.setString(2, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                TodoDTO todo = new TodoDTO();
+                todo.setTodoId(rs.getInt("TODO_ID"));
+                todo.setUserId(rs.getString("USER_ID"));
+                todo.setTitle(rs.getString("TITLE"));
+                todo.setDescription(rs.getString("DESCRIPTION"));
+                todo.setIsCompleted(rs.getString("IS_COMPLETED"));
+                todo.setPriority(rs.getInt("PRIORITY"));
+                todo.setDueDate(rs.getDate("DUE_DATE"));
+                todo.setCreateDate(rs.getDate("CREATE_DATE"));
+                todo.setCompleteDate(rs.getDate("COMPLETE_DATE"));
+                return todo;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

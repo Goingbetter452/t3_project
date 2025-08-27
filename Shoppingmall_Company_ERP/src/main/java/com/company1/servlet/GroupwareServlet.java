@@ -14,6 +14,8 @@ import com.company1.dao.GroupwareDAO;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
 import com.company1.dto.CalendarDTO;
+import com.company1.dto.MessageDTO;
+import com.company1.dto.TodoDTO;
 
 @WebServlet("/GroupwareServlet")
 public class GroupwareServlet extends HttpServlet {
@@ -45,6 +47,15 @@ public class GroupwareServlet extends HttpServlet {
                 break;
             case "getMonthlyEvents":  // 추가: 월별 일정 조회
                 getMonthlyEvents(request, response);
+                break;
+            case "getEvent":  // 추가: 단일 일정 조회
+                getEvent(request, response);
+                break;
+            case "getTodos":  // 추가: 할일 목록 조회
+                getTodos(request, response);
+                break;
+            case "getMessages":
+                getMessages(request, response);
                 break;
             default:
                 response.sendRedirect("groupware.jsp");
@@ -86,6 +97,27 @@ public class GroupwareServlet extends HttpServlet {
                 break;
             case "deleteEvent":   // 추가: 일정 삭제
                 deleteEvent(request, response);
+                break;
+            case "addTodo":       // 추가: 할일 추가
+                addTodo(request, response);
+                break;
+            case "updateTodo":    // 추가: 할일 수정
+                updateTodo(request, response);
+                break;
+            case "deleteTodo":    // 추가: 할일 삭제
+                deleteTodo(request, response);
+                break;
+            case "toggleTodo":    // 추가: 할일 완료/미완료 토글
+                toggleTodo(request, response);
+                break;
+            case "sendMessage":
+                sendMessage(request, response);
+                break;
+            case "deleteMessage":
+                deleteMessage(request, response);
+                break;
+            case "markMessageRead":
+                markMessageRead(request, response);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid command");
@@ -363,10 +395,15 @@ public class GroupwareServlet extends HttpServlet {
         
         PrintWriter out = response.getWriter();
         if (attendance != null) {
-            out.print("checkInTime:" + attendance.getCheckInTime() + ",");
-            out.print("checkOutTime:" + attendance.getCheckOutTime() + ",");
+            // null 값을 빈 문자열로 변환하여 전송
+            String checkInTime = attendance.getCheckInTime() != null ? attendance.getCheckInTime().toString() : "";
+            String checkOutTime = attendance.getCheckOutTime() != null ? attendance.getCheckOutTime().toString() : "";
+            String status = attendance.getStatus() != null ? attendance.getStatus() : "";
+            
+            out.print("checkInTime:" + checkInTime + ",");
+            out.print("checkOutTime:" + checkOutTime + ",");
             out.print("totalWorkMinutes:" + attendance.getTotalWorkMinutes() + ",");
-            out.print("status:" + attendance.getStatus());
+            out.print("status:" + status);
         } else {
             out.print("");
         }
@@ -567,6 +604,500 @@ public class GroupwareServlet extends HttpServlet {
         try {
             int eventId = Integer.parseInt(request.getParameter("eventId"));
             boolean success = groupwareDAO.deleteEvent(eventId, userId);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    // 단일 일정 조회
+    private void getEvent(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        String eventIdStr = request.getParameter("eventId");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        if (eventIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int eventId = Integer.parseInt(eventIdStr);
+            CalendarDTO event = groupwareDAO.getEventById(eventId, userId);
+            
+            PrintWriter out = response.getWriter();
+            if (event != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                
+                // eventId|title|description|type|startDate|endDate|isAllDay|location
+                out.print(
+                    event.getEventId() + "|" +
+                    event.getTitle().replace("|", " ").replace("%", " ") + "|" +
+                    event.getDescription().replace("|", " ").replace("%", " ") + "|" +
+                    event.getEventType() + "|" +
+                    sdf.format(event.getStartDate()) + "|" +
+                    sdf.format(event.getEndDate()) + "|" +
+                    event.getIsAllDay() + "|" +
+                    (event.getLocation() != null ? event.getLocation().replace("|", " ") : "")
+                );
+            } else {
+                out.print("error");
+            }
+            out.flush();
+            
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    // ===== 할일 관련 메서드 =====
+    
+    /**
+     * 사용자의 할일 목록을 조회합니다.
+     */
+    private void getTodos(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("");
+            out.flush();
+            return;
+        }
+        
+        List<TodoDTO> todos = groupwareDAO.getUserTodos(userId);
+        
+        PrintWriter out = response.getWriter();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
+        for (int i = 0; i < todos.size(); i++) {
+            TodoDTO todo = todos.get(i);
+            if (i > 0) out.print("%%%");
+            
+            // todoId|title|description|isCompleted|priority|dueDate|createDate
+            String dueDateStr = (todo.getDueDate() != null) ? sdf.format(todo.getDueDate()) : "";
+            String createDateStr = (todo.getCreateDate() != null) ? sdf.format(todo.getCreateDate()) : "";
+            
+            out.print(
+                todo.getTodoId() + "|" +
+                todo.getTitle().replace("|", " ").replace("%", " ") + "|" +
+                (todo.getDescription() != null ? todo.getDescription().replace("|", " ").replace("%", " ") : "") + "|" +
+                todo.getIsCompleted() + "|" +
+                todo.getPriority() + "|" +
+                dueDateStr + "|" +
+                createDateStr
+            );
+        }
+        out.flush();
+    }
+    
+    /**
+     * 새로운 할일을 추가합니다.
+     */
+    private void addTodo(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String title = request.getParameter("title");
+        String description = request.getParameter("description");
+        String priorityStr = request.getParameter("priority");
+        String dueDateStr = request.getParameter("dueDate");
+        
+        if (title == null || title.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            TodoDTO todo = new TodoDTO();
+            todo.setUserId(userId);
+            todo.setTitle(title.trim());
+            todo.setDescription(description != null ? description.trim() : "");
+            todo.setPriority(priorityStr != null ? Integer.parseInt(priorityStr) : 3);
+            
+            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                todo.setDueDate(new java.sql.Date(sdf.parse(dueDateStr).getTime()));
+            }
+            
+            boolean success = groupwareDAO.addTodo(todo);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 할일을 수정합니다.
+     */
+    private void updateTodo(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String todoIdStr = request.getParameter("todoId");
+        String title = request.getParameter("title");
+        String description = request.getParameter("description");
+        String priorityStr = request.getParameter("priority");
+        String dueDateStr = request.getParameter("dueDate");
+        
+        if (todoIdStr == null || title == null || title.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            TodoDTO todo = new TodoDTO();
+            todo.setTodoId(Integer.parseInt(todoIdStr));
+            todo.setUserId(userId);
+            todo.setTitle(title.trim());
+            todo.setDescription(description != null ? description.trim() : "");
+            todo.setPriority(priorityStr != null ? Integer.parseInt(priorityStr) : 3);
+            
+            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                todo.setDueDate(new java.sql.Date(sdf.parse(dueDateStr).getTime()));
+            }
+            
+            boolean success = groupwareDAO.updateTodo(todo);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 할일을 삭제합니다.
+     */
+    private void deleteTodo(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String todoIdStr = request.getParameter("todoId");
+        
+        if (todoIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int todoId = Integer.parseInt(todoIdStr);
+            boolean success = groupwareDAO.deleteTodo(todoId, userId);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 할일의 완료/미완료 상태를 토글합니다.
+     */
+    private void toggleTodo(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String todoIdStr = request.getParameter("todoId");
+        
+        if (todoIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int todoId = Integer.parseInt(todoIdStr);
+            boolean success = groupwareDAO.toggleTodoCompletion(todoId, userId);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 메시지 목록을 조회합니다.
+     */
+    private void getMessages(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        
+        List<MessageDTO> messages = groupwareDAO.getUserMessages(userId);
+        PrintWriter out = response.getWriter();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
+        for (int i = 0; i < messages.size(); i++) {
+            MessageDTO msg = messages.get(i);
+            if (i > 0) out.print("%%%");
+            
+            // messageId|type|senderId|senderName|receiverId|receiverName|content|isRead|sendDate|readDate
+            out.print(
+                msg.getMessageId() + "|" +
+                msg.getMessageType() + "|" +
+                msg.getSenderId() + "|" +
+                msg.getSenderName() + "|" +
+                (msg.getReceiverId() != null ? msg.getReceiverId() : "") + "|" +
+                (msg.getReceiverName() != null ? msg.getReceiverName() : "") + "|" +
+                msg.getContent().replace("|", " ").replace("%", " ") + "|" +
+                msg.getIsRead() + "|" +
+                sdf.format(msg.getSendDate()) + "|" +
+                (msg.getReadDate() != null ? sdf.format(msg.getReadDate()) : "")
+            );
+        }
+        out.flush();
+    }
+    
+    /**
+     * 새 메시지를 전송합니다.
+     */
+    private void sendMessage(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String senderId = (String) session.getAttribute("loginUser");
+        String senderName = (String) session.getAttribute("userName");
+        
+        if (senderId == null || senderId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String receiverId = request.getParameter("receiverId");
+        String content = request.getParameter("content");
+        String messageType = request.getParameter("messageType");
+        
+        if (content == null || content.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        MessageDTO message = new MessageDTO();
+        message.setSenderId(senderId);
+        message.setSenderName(senderName != null ? senderName : senderId);
+        message.setReceiverId(receiverId);
+        message.setContent(content.trim());
+        message.setMessageType(messageType != null ? messageType : "PERSONAL");
+        
+        boolean success = groupwareDAO.sendMessage(message);
+        
+        PrintWriter out = response.getWriter();
+        out.print(success ? "success" : "error");
+        out.flush();
+    }
+    
+    /**
+     * 메시지를 삭제합니다.
+     */
+    private void deleteMessage(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String messageIdStr = request.getParameter("messageId");
+        if (messageIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int messageId = Integer.parseInt(messageIdStr);
+            boolean success = groupwareDAO.deleteMessage(messageId, userId);
+            
+            PrintWriter out = response.getWriter();
+            out.print(success ? "success" : "error");
+            out.flush();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+        }
+    }
+    
+    /**
+     * 메시지를 읽음 표시합니다.
+     */
+    private void markMessageRead(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute("loginUser");
+        
+        if (userId == null || userId.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        String messageIdStr = request.getParameter("messageId");
+        if (messageIdStr == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            PrintWriter out = response.getWriter();
+            out.print("error");
+            out.flush();
+            return;
+        }
+        
+        try {
+            int messageId = Integer.parseInt(messageIdStr);
+            boolean success = groupwareDAO.markMessageAsRead(messageId, userId);
             
             PrintWriter out = response.getWriter();
             out.print(success ? "success" : "error");
