@@ -73,3 +73,7 @@ body {
     border-radius: 6px;
 }
 
+
+.title {
+    white-space: nowrap; /* 1줄로 만드는 코드 */
+}

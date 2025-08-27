@@ -49,7 +49,8 @@
 				<button onclick="addNotice()">등록</button>
 			</div>
 			<div class="notice-list" id="noticeList">
-				<!-- 공지사항 목록이 여기에 동적으로 생성됩니다 -->
+			
+						<!-- 공지사항 목록이 여기에 동적으로 생성됩니다 -->
 			</div>
 		</div>
 
