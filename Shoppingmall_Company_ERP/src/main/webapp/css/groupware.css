@@ -582,3 +582,27 @@
     }
     
 }
+
+
+/* 날짜와 버튼을 묶는 그룹 스타일 */
+.notice-meta {
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 15px; /* 날짜와 버튼 사이 간격 */
+}
+
+/* 삭제 버튼 스타일 */
+.delete-notice-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.delete-notice-btn:hover {
+    background-color: #c82333;
+}
+

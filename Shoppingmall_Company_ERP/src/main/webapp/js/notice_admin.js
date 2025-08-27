@@ -104,12 +104,17 @@ function displayNotices() {
         }
 
         noticeItem.innerHTML =
-            '<div class="notice-header">' +
-                '<span class="notice-title">' + (notice.title || '') + '</span>' +
-                '<span class="notice-date">' + dateText + '</span>' +
-            '</div>' +
-            '<div class="notice-content">' + (notice.content || '') + '</div>' +
-            '<div class="notice-author">작성자: ' + (notice.authorName || '') + (typeof notice.viewCount === 'number' ? ' | 조회수: ' + notice.viewCount : '') + '</div>';
+		'<div class="notice-header">' +
+		                '<span class="notice-title">' + (notice.title || '') + '</span>' +
+		                // 날짜와 삭제 버튼을 함께 묶어주는 div를 추가했어요.
+		                '<div class="notice-meta">' +
+		                    '<span class="notice-date">' + dateText + '</span>' +
+		                    '<button class="delete-notice-btn" onclick="deleteNotice(' + notice.noticeId + ')">삭제</button>' +
+		                '</div>' +
+		            '</div>' +
+		            '<div class="notice-content">' + (notice.content || '') + '</div>' +
+		            '<div class="notice-author">작성자: ' + (notice.authorName || '') + (typeof notice.viewCount === 'number' ? ' | 조회수: ' + notice.viewCount : '') + '</div>';
+		        
         noticeList.appendChild(noticeItem);
     });
 }

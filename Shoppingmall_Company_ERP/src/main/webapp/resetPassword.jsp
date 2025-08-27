@@ -11,7 +11,7 @@
 	<div class="login-container">
 
         <div class="logo">
-            <h1>비밀번호 재설정</h1>
+            <h1 class="title">비밀번호 재설정</h1>
         </div>
 
 	<form action="ResetPasswordServlet" method="post">
