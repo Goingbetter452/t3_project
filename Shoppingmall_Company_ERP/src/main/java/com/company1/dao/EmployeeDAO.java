@@ -48,7 +48,7 @@ public class EmployeeDAO {
      
      
     /**
-     * 모든 직원 목록을 조회하는 메서드
+     * 모든 직원 목록을 조회하는 메서드 (기존 selectAllEmployees 유지)
      * @return 직원 목록 (List<EmployeeDTO>)
      */
     public List<EmployeeDTO> selectAllEmployees() {
@@ -78,6 +78,29 @@ public class EmployeeDAO {
             DBManager.close(rs, pstmt, conn);	// DB 닫는 코드
         }
         return list;							// 리스트로 돌아가기
+    }
+    
+    /**
+     * 그룹웨어 수신자 목록용: 모든 직원의 기본 정보를 조회 (emp_id, emp_name, position, auth)
+     */
+    public List<EmployeeDTO> getAllEmployees() {
+        List<EmployeeDTO> employees = new ArrayList<>();
+        String sql = "SELECT emp_id, emp_name, position, auth FROM employees ORDER BY emp_name";
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                EmployeeDTO emp = new EmployeeDTO();
+                emp.setEmpId(rs.getString("emp_id"));
+                emp.setEmpName(rs.getString("emp_name"));
+                emp.setPosition(rs.getString("position"));
+                emp.setAuth(rs.getString("auth"));
+                employees.add(emp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return employees;
     }
      
      
@@ -155,37 +178,6 @@ public class EmployeeDAO {
         PreparedStatement pstmt = null;
         int result = 0;
 
-		 /*public String findIdByNameAndEmail(String name, String email) {
-			    String foundId = null;
-			    String sql = "SELECT emp_id FROM employees WHERE emp_name = ? AND emp_email = ?";
-			    // ... DB 연결 및 PreparedStatement, ResultSet 처리 로직 ...
-			    // rs.next()가 true이면 foundId = rs.getString("emp_id");
-			    return foundId;
-			}*/
-		 
-		 /*public List<EmployeeDTO> getAllEmployees() {
-		        List<EmployeeDTO> employees = new ArrayList<>();
-		        String sql = "SELECT EMP_ID, EMP_NAME, POSITION, AUTH FROM EMPLOYEES ORDER BY EMP_NAME";
-		        
-		        try (Connection conn = DBManager.getDBConnection();
-		             PreparedStatement pstmt = conn.prepareStatement(sql);
-		             ResultSet rs = pstmt.executeQuery()) {
-		            
-		            while (rs.next()) {
-		                EmployeeDTO emp = new EmployeeDTO();
-		                emp.setEmpId(rs.getString("EMP_ID"));
-		                emp.setEmpName(rs.getString("EMP_NAME"));
-		                emp.setPosition(rs.getString("POSITION"));
-		                emp.setAuth(rs.getString("AUTH"));
-		                employees.add(emp);
-		            }
-		        } catch (SQLException e) {
-		            e.printStackTrace();
-		        }
-		        
-		        return employees;
-		    }*/
-
         // 비밀번호 필드가 비어있는지 여부에 따라 다른 SQL을 사용합니다.
         // 비밀번호를 변경하지 않을 경우, 기존 비밀번호를 유지해야 합니다.
         String sql;
@@ -198,7 +190,6 @@ public class EmployeeDAO {
             // 비밀번호를 제외한 나머지 정보만 변경하는 경우
             sql = "UPDATE employees SET emp_name=?, position=?, auth=? WHERE emp_id=?";
         }
-
 
         try {
             conn = DBManager.getDBConnection();
@@ -251,12 +242,24 @@ public class EmployeeDAO {
         return result;
     }
 
-
+    /**
+     * 이름과 이메일로 아이디 찾기 (미사용 시에도 컴파일 에러 방지용 기본 구현)
+     */
     public String findIdByNameAndEmail(String name, String email) {
         String foundId = null;
         String sql = "SELECT emp_id FROM employees WHERE emp_name = ? AND emp_email = ?";
-        // ... DB 연결 및 PreparedStatement, ResultSet 처리 로직 ...
-        // rs.next()가 true이면 foundId = rs.getString("emp_id");
+        try (Connection conn = DBManager.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    foundId = rs.getString("emp_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return foundId;
     }
 }
