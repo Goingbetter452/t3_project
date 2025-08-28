@@ -103,7 +103,16 @@
                                 <tr>
                                     <%-- DTO의 getter 메소드를 사용하여 값을 가져옵니다. --%>
                                     <td class="employee-id"><strong><%= employee.getEmpId() %></strong></td>
+<<<<<<< HEAD
                                     <td class="employee-name"><strong><%= employee.getEmpName() %></strong></td>
+=======
+                                    <td class="employee-name">
+                                    	<strong>
+                                    		<a href="EmployeeServlet?action=detail&empId=<%= employee.getEmpId() %>">	<!-- 직원이름을 클릭하면 해당직원 empId 값이 URL을 통해 전달됨 -->
+                                    			<%= employee.getEmpName() %>
+                                    	</strong>
+                                    </td>
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
                                     <td class="employee-position"><%= employee.getPosition() != null ? employee.getPosition() : "-" %></td>
                                     <td class="employee-auth"><%= "admin".equals(employee.getAuth()) ? "관리자" : "일반 사용자" %></td>
                                     <td class="actions">

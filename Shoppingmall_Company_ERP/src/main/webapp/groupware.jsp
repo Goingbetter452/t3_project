@@ -1,7 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-	pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, java.text.*, java.time.*"%>
+<%@ page import="java.util.*, java.text.*, java.time.*, com.company1.dao.*, com.company1.dto.*" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,6 +12,8 @@
 	href="${pageContext.request.contextPath}/css/common.css">
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/groupware.css">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/calendar.css">
 
 </head>
 <body>
@@ -23,6 +25,21 @@
 		<h1>🏢 그룹웨어</h1>
 		<p>효율적인 업무 협업을 위한 통합 워크스페이스</p>
 	</div>
+
+
+	<!-- 세션 디버깅 (임시) -->
+	<div id="sessionDebug" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+		세션 상태: 
+		<%
+			String currentUser = (String) session.getAttribute("loginUser");
+			if(currentUser != null && !currentUser.trim().isEmpty()) {
+				out.print("로그인됨 (ID: " + currentUser + ")");
+			} else {
+				out.print("로그인 필요");
+			}
+		%>
+	</div>
+
 
 	<div class="groupware-container">
 		<!-- 공지사항 섹션 -->
@@ -36,7 +53,10 @@
 				<button onclick="addNotice()">등록</button>
 			</div>
 			<div class="notice-list" id="noticeList">
-				<!-- 공지사항 목록이 여기에 동적으로 생성됩니다 -->
+
+			
+						<!-- 공지사항 목록이 여기에 동적으로 생성됩니다 -->
+
 			</div>
 		</div>
 
@@ -113,9 +133,33 @@
 				<!-- 채팅 메시지가 여기에 표시됩니다 -->
 			</div>
 			<div class="messenger-form">
-				<input type="text" id="messageInput" placeholder="메시지를 입력하세요..."
-					maxlength="200" onkeypress="if(event.keyCode==13) sendMessage()">
-				<button onclick="sendMessage()">전송</button>
+
+				<select id="messageReceiver">
+					<option value="ALL">전체</option>
+					<% 
+					try {
+						EmployeeDAO employeeDAO = new EmployeeDAO();
+						List<EmployeeDTO> employees = employeeDAO.getAllEmployees();
+						if(employees != null) {
+							for(EmployeeDTO emp : employees) {
+								if(!emp.getEmpId().equals(currentUser)) {
+					%>
+									<option value="<%=emp.getEmpId()%>"><%=emp.getEmpName()%> (<%=emp.getEmpId()%>)</option>
+					<%
+								}
+							}
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+					%>
+				</select>
+				<div class="message-input-container">
+					<input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
+						   maxlength="200" onkeypress="if(event.keyCode==13) sendMessage()">
+					<button onclick="sendMessage()">전송</button>
+				</div>
+
 			</div>
 		</div>
 	</div>
@@ -123,9 +167,12 @@
 	<script src="${pageContext.request.contextPath}/js/jquery-3.7.1.js"></script>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script src="${pageContext.request.contextPath}/js/notice_admin.js"></script>
+    <script>
+    <% String __cu = (String)session.getAttribute("loginUser"); if (__cu == null) __cu = ""; %>
+    window.CURRENT_USER_ID = '<%= __cu.replace("'", "\\'") %>';
+    </script>
+
     <script src="${pageContext.request.contextPath}/js/groupware.js"></script>
 	<!-- JavaScript 코드는 별도 파일로 분리되었습니다 -->
-
-  
 </body>
 </html>

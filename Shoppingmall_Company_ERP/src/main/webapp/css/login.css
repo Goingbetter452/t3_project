@@ -73,3 +73,10 @@ body {
     border-radius: 6px;
 }
 
+<<<<<<< HEAD
+=======
+
+.title {
+    white-space: nowrap; /* 1줄로 만드는 코드 */
+}
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936

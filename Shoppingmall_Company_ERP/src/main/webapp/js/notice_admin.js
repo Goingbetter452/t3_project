@@ -21,7 +21,17 @@ function addNotice() {
         },
         body: 'command=addNotice&title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content)
     })
-    .then(response => response.text())
+
+    .then(response => {
+        if (response.status === 401) {
+            throw new Error('로그인이 필요합니다.');
+        }
+        if (!response.ok) {
+            throw new Error('서버 오류가 발생했습니다.');
+        }
+        return response.text();
+    })
+
     .then(data => {
         if (data.includes('success')) {
             showAlert('공지사항이 등록되었습니다.', 'success');
@@ -29,12 +39,16 @@ function addNotice() {
             document.getElementById('noticeContent').value = '';
             loadNoticesFromServer();
         } else {
-            showAlert('공지사항 등록에 실패했습니다.', 'error');
+
+            showAlert('공지사항 등록에 실패했습니다. (서버 응답: ' + data + ')', 'error');
+
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('공지사항 등록 중 오류가 발생했습니다.', 'error');
+
+        showAlert(error.message || '공지사항 등록 중 오류가 발생했습니다.', 'error');
+
     });
 }
 
@@ -57,48 +71,60 @@ function loadNoticesFromServer() {
 // 서버 응답을 파싱하여 notices 배열에 저장
 function parseNoticesFromServer(data) {
     notices = [];
-    // 간단한 파싱 로직 (서버에서 보내는 형식에 따라 조정 필요)
-    if (data && data.trim() !== '') {
-        // 예시: "제목1|내용1|작성자1|2024-01-01,제목2|내용2|작성자2|2024-01-02"
-        const noticeStrings = data.split(',');
-        noticeStrings.forEach(noticeStr => {
-            if (noticeStr.trim()) {
-                const parts = noticeStr.split('|');
-                if (parts.length >= 4) {
-                    const notice = {
-                        title: parts[0],
-                        content: parts[1],
-                        authorName: parts[2],
-                        createDate: parts[3]
-                    };
-                    notices.push(notice);
-                }
-            }
-        });
-    }
+
+    if (!data || data.trim() === '') return;
+
+    // 서버 포맷: 레코드 구분자 '%%%', 필드: noticeId|title|content|authorName|createDate|viewCount
+    const records = data.split('%%%');
+    records.forEach(rec => {
+        const parts = rec.split('|');
+        if (parts.length >= 6) {
+            const n = {
+                noticeId: parseInt(parts[0], 10),
+                title: parts[1] || '',
+                content: parts[2] || '',
+                authorName: parts[3] || '',
+                createDate: parts[4] || '',
+                viewCount: parseInt(parts[5], 10) || 0
+            };
+            notices.push(n);
+        }
+    });
+
 }
 
 // 공지사항 표시
 function displayNotices() {
     const noticeList = document.getElementById('noticeList');
     if (!noticeList) return;
-    
+
     noticeList.innerHTML = '';
 
     notices.forEach(notice => {
         const noticeItem = document.createElement('div');
         noticeItem.className = 'notice-item';
-        
-        // 날짜 형식 변환
-        const createDate = notice.createDate ? new Date(notice.createDate).toLocaleString('ko-KR') : '날짜 없음';
-        
-        noticeItem.innerHTML = 
-            '<div class="notice-header">' +
-                '<span class="notice-title">' + notice.title + '</span>' +
-                '<span class="notice-date">' + createDate + '</span>' +
-            '</div>' +
-            '<div class="notice-content">' + notice.content + '</div>' +
-            '<div class="notice-author">작성자: ' + notice.authorName + '</div>';
+
+
+        // 날짜 형식 변환 (빈 값 방어)
+        let dateText = '날짜 없음';
+        if (notice.createDate) {
+            const d = new Date(notice.createDate);
+            dateText = isNaN(d.getTime()) ? String(notice.createDate) : d.toLocaleString('ko-KR');
+        }
+
+        noticeItem.innerHTML =
+		'<div class="notice-header">' +
+		                '<span class="notice-title">' + (notice.title || '') + '</span>' +
+		                // 날짜와 삭제 버튼을 함께 묶어주는 div를 추가했어요.
+		                '<div class="notice-meta">' +
+		                    '<span class="notice-date">' + dateText + '</span>' +
+		                    '<button class="delete-notice-btn" onclick="deleteNotice(' + notice.noticeId + ')">삭제</button>' +
+		                '</div>' +
+		            '</div>' +
+		            '<div class="notice-content">' + (notice.content || '') + '</div>' +
+		            '<div class="notice-author">작성자: ' + (notice.authorName || '') + (typeof notice.viewCount === 'number' ? ' | 조회수: ' + notice.viewCount : '') + '</div>';
+		        
+
         noticeList.appendChild(noticeItem);
     });
 }
@@ -228,4 +254,6 @@ function updateNotice() {
         console.error('Error:', error);
         showAlert('공지사항 수정 중 오류가 발생했습니다.', 'error');
     });
+
 }
+

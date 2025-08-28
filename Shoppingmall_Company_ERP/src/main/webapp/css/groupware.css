@@ -320,15 +320,72 @@
     border: 1px solid #ddd;
 }
 
+<<<<<<< HEAD
 .message-info {
     font-size: 11px;
     margin-top: 5px;
     opacity: 0.7;
+=======
+.message.unread {
+    border: 2px solid #ffc107;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.message-content {
+    word-break: break-word;
+    margin: 5px 0;
+}
+
+.message-info {
+    font-size: 0.8em;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.message-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.message-actions button {
+    padding: 2px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.reply-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.read-mark {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    margin-left: 5px;
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 }
 
 .messenger-form {
     display: flex;
     gap: 10px;
+<<<<<<< HEAD
 }
 
 .messenger-form input[type="text"] {
@@ -344,13 +401,196 @@
     border: none;
     padding: 10px 20px;
     border-radius: 20px;
+=======
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+#messageReceiver {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.messenger-form button {
+    padding: 8px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     cursor: pointer;
 }
 
 .messenger-form button:hover {
+<<<<<<< HEAD
     background: #4a29a0;
 }
 
+=======
+    background-color: #0056b3;
+}
+
+/* 캘린더 스타일 */
+#calendar {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+#calendar th {
+    background: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#calendar td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    height: 40px;
+    position: relative;
+}
+
+#calendar td:hover {
+    background: #f8f8f8;
+}
+
+#calendar .today {
+    background: #e8f4ff;
+    font-weight: bold;
+}
+
+#calendar .other-month {
+    color: #ccc;
+    background: #fafafa;
+}
+
+#calendar .has-events {
+    position: relative;
+}
+
+#calendar .has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #4CAF50;
+    border-radius: 50%;
+}
+
+/* 일정 입력 모달 */
+.event-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.event-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.event-form h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.event-form input[type="text"],
+.event-form textarea,
+.event-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.event-form textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.event-form input[type="time"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.event-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.event-form .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.event-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.event-form button:first-child {
+    background: #4CAF50;
+    color: white;
+}
+
+.event-form button:last-child {
+    background: #f44336;
+    color: white;
+}
+
+.event-form button:hover {
+    opacity: 0.9;
+}
+
+/* 일정 종류별 색상 */
+.event-PERSONAL { background-color: #e3f2fd; }
+.event-MEETING { background-color: #fff3e0; }
+.event-HOLIDAY { background-color: #f3e5f5; }
+.event-COMPANY { background-color: #e8f5e9; }
+
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .groupware-container {
@@ -374,6 +614,7 @@
     
 }
 
+<<<<<<< HEAD
 .page-header {
 	background: linear-gradient(135deg, #6c5ce7, #4a29a0);
 	color: white;
@@ -395,3 +636,28 @@
 }
 
 
+=======
+
+/* 날짜와 버튼을 묶는 그룹 스타일 */
+.notice-meta {
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 15px; /* 날짜와 버튼 사이 간격 */
+}
+
+/* 삭제 버튼 스타일 */
+.delete-notice-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.delete-notice-btn:hover {
+    background-color: #c82333;
+}
+
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936

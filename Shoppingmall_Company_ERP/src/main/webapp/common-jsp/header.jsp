@@ -20,7 +20,11 @@
                 <li>
                     <a href="#">상품 관리</a>
                     <ul class="dropdown-menu">
+<<<<<<< HEAD
                         <li><a href="product_list.jsp">상품 목록</a></li>
+=======
+                        <li><a href="ProductServlet?command=list">상품 목록</a></li>
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
                         <li><a href="product_add.jsp">상품 추가</a></li>
                     </ul>
                 </li>
@@ -32,13 +36,19 @@
 			<%-- Session을 사용해서 로그인 상태 확인하기! ( 한울 추가 )--%>
     <div class="user-info">
         <%
+<<<<<<< HEAD
             // "userId"라는 이름으로 세션에 저장된 값이 있는지 확인합니다.
             if (session.getAttribute("loginUser") == null) {
                 // 세션에 userId가 없으면(로그인되지 않은 상태) 로그인 버튼을 표시합니다.
+=======
+            String loginUser = (String) session.getAttribute("loginUser");
+            if (loginUser == null || loginUser.trim().isEmpty()) {
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         %>
                 <a href="login.jsp">로그인</a>
         <%
             } else {
+<<<<<<< HEAD
                 // 세션에 userId가 있으면(로그인된 상태) 로그아웃 버튼을 표시합니다.
             } %>
                 <a href="LogoutServlet">로그아웃</a>
@@ -92,3 +102,17 @@
     </header>
 </body>
 </html>
+=======
+                String userName = (String) session.getAttribute("userName");
+                if (userName == null) userName = loginUser;
+        %>
+                <span class="welcome-text"><%=userName%>님 환영합니다</span>
+                <a href="LogoutServlet">로그아웃</a>
+        <%
+            }
+        %>
+    </div>
+	</header>
+</body>
+</html>
+>>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
