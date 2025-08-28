@@ -1,0 +1,263 @@
+/* 상품 관리 전용 스타일 */
+.product-stats .stat-item:nth-child(1) .stat-number {
+	color: #FF9800;
+}
+
+.product-stats .stat-item:nth-child(2) .stat-number {
+	color: #4CAF50;
+}
+
+.product-stats .stat-item:nth-child(3) .stat-number {
+	color: #2196F3;
+}
+
+.product-form {
+	background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+	color: white;
+	padding: 30px;
+	border-radius: 8px;
+	margin-bottom: 30px;
+}
+
+.product-form h2 {
+	color: white;
+	border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.product-form .form-group label {
+	color: white;
+}
+
+.product-form .form-group input, .product-form .form-group select {
+	background: rgba(255, 255, 255, 0.9);
+	border: none;
+}
+
+.product-form .form-actions input[type=submit] {
+	background-color: rgba(255, 255, 255, 0.2);
+	border: 2px solid white;
+	color: white;
+}
+
+.product-form .form-actions input[type=submit]:hover {
+	background-color: white;
+	color: #FF9800;
+}
+
+.product-table th {
+	background: linear-gradient(135deg, #FF9800, #F57C00);
+	color: white;
+}
+
+.product-table tr:nth-child(even) {
+	background-color: #fff8e1;
+}
+
+.product-table tr:hover {
+	background-color: #ffecb3;
+}
+
+.product-id {
+	font-weight: bold;
+	color: #FF9800;
+}
+
+.product-name {
+	font-weight: bold;
+	color: #333;
+}
+
+.product-price {
+	color: #4CAF50;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.product-stock {
+	color: #666;
+}
+
+.product-stock.low {
+	color: #f44336;
+	font-weight: bold;
+}
+
+.product-stock.medium {
+	color: #FF9800;
+	font-weight: bold;
+}
+
+.product-stock.high {
+	color: #4CAF50;
+	font-weight: bold;
+}
+
+.product-actions {
+	display: flex;
+	gap: 5px;
+	justify-content: center;
+}
+
+.product-actions .btn-edit, .product-actions .btn-delete {
+	padding: 6px 12px;
+	font-size: 11px;
+}
+
+.product-form-row {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr;
+	gap: 20px;
+	align-items: end;
+}
+
+.product-form-row .form-group:first-child {
+	grid-column: 1/2;
+}
+
+.product-form-row .form-group:nth-child(2) {
+	grid-column: 2/3;
+}
+
+.product-form-row .form-group:nth-child(3) {
+	grid-column: 3/4;
+}
+
+.product-form-row .form-actions {
+	grid-column: 1/-1;
+	margin-top: 20px;
+}
+
+
+/* ============================================
+   검색창 스타일(재사용 가능)
+   ============================================ */
+
+.search-box {
+    margin: 20px 0;
+    text-align: right; /* 오른쪽 정렬 */
+}
+
+.search-box form {
+    display: flex; /* 자식 요소들을 가로로 나열 */
+    justify-content: flex-end; /* 오른쪽 정렬 */
+    align-items: center; /* 세로 가운데 정렬 */
+    gap: 10px; /* 요소들 사이 간격 */
+}
+
+.search-input {
+    padding: 12px; /* 세로폭 늘리기 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 250px;
+    font-size: 14px;
+}
+
+.search-button,
+.reset-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.search-button {
+    background-color: #007BFF;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+.reset-button {
+    background-color: #6c757d;
+}
+
+.reset-button:hover {
+    background-color: #5a6268;
+}
+
+/* 기존 버튼 스타일 유지 */
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    background-color: #28a745;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.btn.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 30px 0;
+	gap: 5px;
+}
+
+.page-btn {
+	display: inline-block;
+	padding: 8px 12px;
+	margin: 0 2px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	text-decoration: none;
+	color: #333;
+	background-color: #fff;
+	transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+	background-color: #f0f0f0;
+	border-color: #999;
+}
+
+.page-btn.current {
+	background-color: #007bff;
+	color: white;
+	border-color: #007bff;
+}
+
+.page-btn.prev, .page-btn.next {
+	background-color: #f8f9fa;
+	font-weight: bold;
+}
+
+.page-ellipsis {
+	padding: 8px 12px;
+	color: #666;
+}
+
+.page-info {
+	text-align: center;
+	margin: 20px 0;
+	color: #666;
+	font-size: 14px;
+}
+
+.page-info span {
+	margin: 0 10px;
+}
+
