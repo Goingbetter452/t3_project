@@ -421,12 +421,6 @@ tr:hover {
 .form-container input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
 .form-container button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; }
 
-<<<<<<< HEAD
-/*가로 가운데*/
-.rows_center{display:flex; justify-content:center;border:0;}
-
-.border0{border:0;}
-=======
 
 /* ============================================
    검색창 스타일(재사용 가능)
@@ -482,4 +476,3 @@ tr:hover {
     background-color: #5a6268;
 }
 
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
