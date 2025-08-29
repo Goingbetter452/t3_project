@@ -38,11 +38,6 @@
     			<a href="findPassword.jsp">비밀번호 찾기</a>
     			<span>|</span>
     			<a href="findId.jsp">아이디 찾기</a>
-<<<<<<< HEAD
-    			<span>|</span>
-    			<a href="#">회원가입</a>
-=======
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     		</div>
     		  
 	</form>
