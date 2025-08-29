@@ -2,10 +2,7 @@ package com.company1.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-<<<<<<< HEAD
-=======
 import java.text.SimpleDateFormat;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,12 +13,9 @@ import jakarta.servlet.http.HttpSession;
 import com.company1.dao.GroupwareDAO;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
-<<<<<<< HEAD
-=======
 import com.company1.dto.CalendarDTO;
 import com.company1.dto.MessageDTO;
 import com.company1.dto.TodoDTO;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 
 @WebServlet("/GroupwareServlet")
 public class GroupwareServlet extends HttpServlet {
@@ -33,6 +27,12 @@ public class GroupwareServlet extends HttpServlet {
         groupwareDAO = new GroupwareDAO();
     }
     
+    /*
+     * GET 요청을 처리하는 메서드로, 다양한 명령어에 따라 적절한 기능을 수행합니다.
+     * @param request  HTTP 요청 객체
+     * @param response HTTP 응답 객체
+     * @throws ServletException 서블릿 예외
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String command = request.getParameter("command");
@@ -51,8 +51,6 @@ public class GroupwareServlet extends HttpServlet {
             case "getMonthlyAttendance":
                 getMonthlyAttendance(request, response);
                 break;
-<<<<<<< HEAD
-=======
             case "getMonthlyEvents":  // 추가: 월별 일정 조회
                 getMonthlyEvents(request, response);
                 break;
@@ -65,13 +63,18 @@ public class GroupwareServlet extends HttpServlet {
             case "getMessages":
                 getMessages(request, response);
                 break;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
             default:
                 response.sendRedirect("groupware.jsp");
                 break;
         }
     }
     
+    /**
+	 * POST 요청을 처리하는 메서드로, 다양한 명령어에 따라 적절한 기능을 수행합니다.
+	 * @param request  HTTP 요청 객체
+	 * @param response HTTP 응답 객체
+	 * @throws ServletException 서블릿 예외
+	 */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -98,8 +101,6 @@ public class GroupwareServlet extends HttpServlet {
             case "checkOut":
                 checkOut(request, response);
                 break;
-<<<<<<< HEAD
-=======
             case "addEvent":      // 추가: 일정 추가
                 addEvent(request, response);
                 break;
@@ -130,18 +131,13 @@ public class GroupwareServlet extends HttpServlet {
             case "markMessageRead":
                 markMessageRead(request, response);
                 break;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid command");
                 break;
         }
     }
     
-<<<<<<< HEAD
-	/**
-=======
     /**
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
      * 모든 공지사항을 텍스트 형태로 반환합니다.
      */
     private void getNotices(HttpServletRequest request, HttpServletResponse response) 
@@ -152,18 +148,6 @@ public class GroupwareServlet extends HttpServlet {
         List<NoticeDTO> notices = groupwareDAO.getAllNotices();
         
         PrintWriter out = response.getWriter();
-<<<<<<< HEAD
-
-        for (int i = 0; i < notices.size(); i++) {
-            NoticeDTO notice = notices.get(i);
-            if (i > 0) out.print(",");
-            out.print(notice.getTitle() + "|" + 
-                     notice.getContent() + "|" + 
-                     notice.getAuthorName() + "|" + 
-                     notice.getCreateDate());
-        }
-
-=======
         // 날짜를 'yyyy-MM-dd HH:mm:ss' 형식으로 변환하기 위한 포맷터
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -184,7 +168,6 @@ public class GroupwareServlet extends HttpServlet {
                 notice.getViewCount()
             );
         }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         out.flush();
     }
     
@@ -200,15 +183,6 @@ public class GroupwareServlet extends HttpServlet {
         String content = request.getParameter("content");
         
         HttpSession session = request.getSession();
-<<<<<<< HEAD
-        String authorId = (String) session.getAttribute("userId");
-        String authorName = (String) session.getAttribute("userName");
-        
-        // 세션에 사용자 정보가 없는 경우 기본값 설정
-        if (authorId == null) {
-            authorId = "guest";
-            authorName = "게스트";
-=======
         String authorId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         String authorName = (String) session.getAttribute("userName");
         
@@ -223,7 +197,6 @@ public class GroupwareServlet extends HttpServlet {
         // authorName 이 없으면 대체값 사용 (NOT NULL 컬럼)
         if (authorName == null || authorName.trim().isEmpty()) {
             authorName = authorId;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
         
         if (title == null || title.trim().isEmpty() || 
@@ -333,10 +306,6 @@ public class GroupwareServlet extends HttpServlet {
     }
     
     /**
-<<<<<<< HEAD
->>>>>>> cb00c5fcb904cfc4347a707877c00f9821a0116c
-=======
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
      * 출근 처리를 합니다.
      */
     private void checkIn(HttpServletRequest request, HttpServletResponse response) 
@@ -345,12 +314,6 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-<<<<<<< HEAD
-        String userId = (String) session.getAttribute("userId");
-        
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
-=======
         String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
         // 사용자 정보가 없으면 FK 제약조건 위반 가능성 -> 에러 반환
@@ -360,7 +323,6 @@ public class GroupwareServlet extends HttpServlet {
             out.print("error");
             out.flush();
             return;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
         
         PrintWriter out = response.getWriter();
@@ -390,12 +352,6 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-<<<<<<< HEAD
-        String userId = (String) session.getAttribute("userId");
-        
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
-=======
         String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
         // 사용자 정보가 없으면 FK 제약조건 위반 가능성 -> 에러 반환
@@ -405,7 +361,6 @@ public class GroupwareServlet extends HttpServlet {
             out.print("error");
             out.flush();
             return;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
         
         PrintWriter out = response.getWriter();
@@ -438,12 +393,6 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-<<<<<<< HEAD
-        String userId = (String) session.getAttribute("userId");
-        
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
-=======
         String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         
         // 로그인 정보가 없으면 빈 응답 반환
@@ -452,19 +401,12 @@ public class GroupwareServlet extends HttpServlet {
             out.print("");
             out.flush();
             return;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
         
         AttendanceDTO attendance = groupwareDAO.getTodayAttendance(userId);
         
         PrintWriter out = response.getWriter();
         if (attendance != null) {
-<<<<<<< HEAD
-            out.print("checkInTime:" + attendance.getCheckInTime() + ",");
-            out.print("checkOutTime:" + attendance.getCheckOutTime() + ",");
-            out.print("totalWorkMinutes:" + attendance.getTotalWorkMinutes() + ",");
-            out.print("status:" + attendance.getStatus());
-=======
             // null 값을 빈 문자열로 변환하여 전송
             String checkInTime = attendance.getCheckInTime() != null ? attendance.getCheckInTime().toString() : "";
             String checkOutTime = attendance.getCheckOutTime() != null ? attendance.getCheckOutTime().toString() : "";
@@ -474,7 +416,6 @@ public class GroupwareServlet extends HttpServlet {
             out.print("checkOutTime:" + checkOutTime + ",");
             out.print("totalWorkMinutes:" + attendance.getTotalWorkMinutes() + ",");
             out.print("status:" + status);
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         } else {
             out.print("");
         }
@@ -489,13 +430,6 @@ public class GroupwareServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         HttpSession session = request.getSession();
-<<<<<<< HEAD
-        String userId = (String) session.getAttribute("userId");
-        String yearMonth = request.getParameter("yearMonth");
-        
-        if (userId == null) {
-            userId = "guest"; // 테스트용 기본값
-=======
         String userId = (String) session.getAttribute("loginUser");  // userId -> loginUser로 변경
         String yearMonth = request.getParameter("yearMonth");
         
@@ -505,7 +439,6 @@ public class GroupwareServlet extends HttpServlet {
             out.print("");
             out.flush();
             return;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
         
         if (yearMonth == null) {
@@ -527,9 +460,6 @@ public class GroupwareServlet extends HttpServlet {
         }
         out.flush();
     }
-<<<<<<< HEAD
-}
-=======
     
     // 월별 일정 조회
     private void getMonthlyEvents(HttpServletRequest request, HttpServletResponse response) 
@@ -1194,4 +1124,3 @@ public class GroupwareServlet extends HttpServlet {
         }
     }
 }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
