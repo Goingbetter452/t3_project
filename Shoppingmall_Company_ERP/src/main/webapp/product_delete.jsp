@@ -74,7 +74,8 @@ try {
             e.printStackTrace();
             
             response.sendRedirect("product_list.jsp?error=db&detail=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
-        } finally {
+        }
+    }finally {
         try {
             if(rs != null) rs.close();
             if(pstmt != null) pstmt.close();

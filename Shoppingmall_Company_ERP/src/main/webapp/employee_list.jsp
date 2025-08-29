@@ -1,76 +1,145 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, com.company1.dto.EmployeeDTO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="com.company1.dto.EmployeeDTO" %>
+
+<%
+    // 서블릿에서 전달한 employeeList 속성을 List<EmployeeDTO> 타입으로 받습니다.
+    List<EmployeeDTO> employeeList = (List<EmployeeDTO>) request.getAttribute("employeeList");
+
+    // ✨ 수정된 부분: 관리자/사용자 수 계산 로직 추가
+    int adminCount = 0;
+    int userCount = 0;
+    if (employeeList != null) {
+        for (EmployeeDTO emp : employeeList) {
+            if ("admin".equals(emp.getAuth())) {
+                adminCount++;
+            } else {
+                userCount++;
+            }
+        }
+    }
+%>
+
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>직원 목록</title>
-<link rel="stylesheet" type="text/css"
-	href="${pageContext.request.contextPath}/css/employee/employee_list.css">
+    <meta charset="UTF-8">
+    <title>직원 관리 시스템</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/employee.css">
 </head>
 <body>
-	<div class="table-container">
-		<header>
-			<h1>직원 목록</h1>
-		</header>
+    <%@ include file="common-jsp/header.jsp" %>
 
-		<main>
-			<div class="table-container">
-				<table>
-					<thead>
-						<tr>
-							<th>사원번호</th>
-							<th>이름</th>
-							<th>부서</th>
-							<th>직급</th>
-							<th>입사일</th>
-							<th>관리</th>
-						</tr>
-					</thead>
-					<tbody>
-						<%
-						// 서블릿에서 넘겨준 employeeList 꺼내오기
-						List<EmployeeDTO> employeeList = (List<EmployeeDTO>) request.getAttribute("employeeList");
+    <div class="container">
+        <div class="stats employee-stats">
+            <div class="stat-item">
+                <div class="stat-number"><%= employeeList != null ? employeeList.size() : 0 %></div>
+                <div class="stat-label">전체 직원 수</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number"><%= adminCount %></div>
+                <div class="stat-label">관리자 수</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number"><%= userCount %></div>
+                <div class="stat-label">일반 직원 수</div>
+            </div>
+        </div>
 
-						if (employeeList == null || employeeList.isEmpty()) {
-						%>
-						<tr>
-							<td colspan="6" class="no-data">등록된 직원이 없습니다.</td>
-						</tr>
-						<%
-						} else {
-						for (EmployeeDTO emp : employeeList) {
-						%>
+        <div class="employee-form">
+            <h2>👨‍💼 신규 직원 등록</h2>
+            <form action="EmployeeServlet" method="post">
+                <input type="hidden" name="action" value="insert">
+                <div class="form-group">
+                    <label for="empId">직원 ID:</label>
+                    <input type="text" id="empId" name="empId" required placeholder="로그인 ID를 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="empPw">비밀번호:</label>
+                    <input type="password" id="empPw" name="empPw" required placeholder="비밀번호를 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="empName">직원명:</label>
+                    <input type="text" id="empName" name="empName" required placeholder="직원명을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일:</label>
+                    <input type="email" id="email" name="email" required placeholder="이메일 주소를 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label for="position">직책:</label>
+                    <select id="position" name="position" required>
+                        <option value="">직책을 선택하세요</option>
+                        <option value="사원">사원</option>
+                        <option value="대리">대리</option>
+                        <option value="과장">과장</option>
+                        <option value="차장">차장</option>
+                        <option value="부장">부장</option>
+                        <option value="이사">이사</option>
+                        <option value="시스템 관리자">시스템 관리자</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="auth">권한:</label>
+                    <select id="auth" name="auth" required>
+                        <option value="">권한을 선택하세요</option>
+                        <option value="admin">관리자</option>
+                        <option value="user">일반 사용자</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <input type="submit" value="✅ 직원 등록">
+                </div>
+            </form>
+        </div>
 
-						<tr>
-							<td><%=emp.getEmpId()%></td>
-							<td><%=emp.getEmpName()%></td>
-							<td><%=emp.getPosition()%></td>
-							<td><%=emp.getAuth()%></td>
-							<td><a
-								href="employee?command=editForm&employeeId=<%=emp.getEmpId()%>"
-								class="btn btn-edit">수정</a> <a
-								href="employee?command=delete&employeeId=<%=emp.getEmpId()%>"
-								class="btn btn-delete" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
-							</td>
-						</tr>
-						<%
-						} // end for
-						} // end if
-						%>
-					</tbody>
-				</table>
-			</div>
-
-			<div class="action-buttons">
-				<a href="employee_form.jsp" class="btn btn-primary">신규 직원 등록</a>
-			</div>
-		</main>
-
-		<footer>
-			<p>&copy; 2025 Company1 ERP Project. All Rights Reserved.</p>
-		</footer>
-	</div>
+        <div class="list-section">
+            <h2>👨‍💼 직원 목록</h2>
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>직원 ID</th>
+                        <th>직원명</th>
+                        <th>직책</th>
+                        <th>권한</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                        if (employeeList != null && !employeeList.isEmpty()) {
+                            for (EmployeeDTO employee : employeeList) {
+                    %>
+                                <tr>
+                                    <td class="employee-id"><strong><%= employee.getEmpId() %></strong></td>
+                                    <td class="employee-name">
+                                        <strong>
+                                            <a href="EmployeeServlet?action=detail&empId=<%= employee.getEmpId() %>">
+                                                <%= employee.getEmpName() %>
+                                            </a>
+                                        </strong>
+                                    </td>
+                                    <td class="employee-position"><%= employee.getPosition() != null ? employee.getPosition() : "-" %></td>
+                                    <td class="employee-auth"><%= "admin".equals(employee.getAuth()) ? "관리자" : "일반 사용자" %></td>
+                                    <td class="actions">
+                                        <a href="EmployeeServlet?action=edit&empId=<%= employee.getEmpId() %>" class="btn-edit">✏️ 수정</a>
+                                        <a href="EmployeeServlet?action=delete&empId=<%= employee.getEmpId() %>" class="btn-delete" onclick="return confirm('정말로 삭제하시겠습니까?');">🗑️ 삭제</a>
+                                    </td>
+                                </tr>
+                    <%
+                            }
+                        } else {
+                    %>
+                        <tr>
+                            <td colspan="5" class="no-data">📭 등록된 직원이 없습니다. 첫 번째 직원을 등록해보세요!</td>
+                        </tr>
+                    <%
+                        }
+                    %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

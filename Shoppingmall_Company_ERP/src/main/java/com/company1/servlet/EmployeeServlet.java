@@ -13,121 +13,124 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.company1.dao.EmployeeDAO;
 import com.company1.dto.EmployeeDTO;
 
-/**
- * 직원(Employee) 관련 모든 요청을 처리하는 프론트 컨트롤러 서블릿입니다.
- * URL 매핑: /employee
- */
-@WebServlet("/employee")
 public class EmployeeServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-       
+    private static final long serialVersionUID = 1L;
+
     public EmployeeServlet() {
         super();
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		actionDo(request, response);
-	}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        actionDo(request, response);
+    }
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");		// 한글 깨짐 방지
-		actionDo(request, response);
-	}
-	
-	private void actionDo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		String command = request.getParameter("command");
-		String action = request.getParameter("action");
-		
-		EmployeeDAO employeeDAO = new EmployeeDAO();
-		
-		String forwardPath = "";
-		
-		
-		if (command == null || command.equals("list")) {
-			// 직원 목록 조회
-			List<EmployeeDTO> employeeList = employeeDAO.selectAllEmployees();
-			request.setAttribute("employeeList", employeeList);
-			forwardPath = "/employee/employee_list.jsp";
-			
-		} else if (command.equals("form")) {
-			// 직원 등록/수정 폼으로 이동
-			String empId = request.getParameter("empId");
-			if (empId != null && !empId.isEmpty()) {
-				// 수정 모드: 해당 직원 정보를 가져와서 폼에 전달
-				// TODO: selectEmployeeById 메서드 구현 후 사용
-				// EmployeeDTO emp = employeeDAO.selectEmployeeById(empId);
-				// request.setAttribute("employee", emp);
-			}
-			forwardPath = "/employee/employee_form.jsp";
-			
-		} else if (action != null && action.equals("insert")) {
-			// 직원 등록 처리
-			String empId = request.getParameter("empId");
-			String empPw = request.getParameter("empPw");
-			String empName = request.getParameter("empName");
-			String position = request.getParameter("position");
-			String auth = request.getParameter("auth");
-			
-			
-			 // 여기에 유효성 검사 코드가 시작 
-		    /* =======================================================
-		     * 서버 측 유효성 검사 (Server-side Validation)
-		     * ======================================================= */
-		    // 검사 1: 주요 데이터가 비어있는지 확인
-		    if (empId == null || empId.trim().isEmpty() || 
-		        empPw == null || empPw.trim().isEmpty() || 
-		        empName == null || empName.trim().isEmpty() ||
-		        position == null || position.trim().isEmpty()) {
-		        
-		        // 문제가 있으면 다시 폼으로 돌려보낸다.
-		        response.sendRedirect("employee/employee_form.jsp?error=empty_data");
-		        return; // 여기서 메소드 실행을 중단시킨다.
-		    }
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        actionDo(request, response);
+    }
 
-		    // 검사 2: 비밀번호가 8자리 이상인지 확인
-		    if (empPw.trim().length() < 8) {
-		        response.sendRedirect("employee/employee_form.jsp?error=password_length");
-		        return;
-		    }
+    private void actionDo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		    // 검사 3: 아이디가 영문/숫자로만 되어있는지 확인 (정규표현식 사용)
-		    // ^[a-zA-Z0-9]*$  -> 시작(^)부터 끝($)까지 영문(a-zA-Z)과 숫자(0-9)만 있는지 검사
-		    if (!empId.matches("^[a-zA-Z0-9]*$")) {
-		        response.sendRedirect("employee/employee_form.jsp?error=invalid_id");
-		        return;
-		    }
-		    // 여기까지 유효성 검사 코드
+        String action = request.getParameter("action");
+        if (action == null) {
+            action = "list"; // 기본 action을 'list'로 설정
+        }
 
-			
-		    
-			EmployeeDTO empDTO = new EmployeeDTO();
-			empDTO.setEmpId(empId);
-			empDTO.setEmpPw(empPw);
-			empDTO.setEmpName(empName);
-			empDTO.setPosition(position);
-			empDTO.setAuth(auth);
-			
-			employeeDAO.insertEmployee(empDTO);
-			
-			response.sendRedirect("index.jsp");
-			
-		} else if (action != null && action.equals("update")) {
-			// 직원 수정 처리 (나중에 구현)
-			System.out.println("직원 수정 처리");
-			response.sendRedirect("employee?command=list");
-			return;
-			
-		} else if (command.equals("delete")) {
-			// 직원 삭제 처리 (나중에 구현)
-			System.out.println("직원 삭제 요청 처리");
-			response.sendRedirect("employee?command=list");
-			return;
-		}
-		
-		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(forwardPath);
-		dispatcher.forward(request, response);
-	}
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        String forwardPath = null;
 
+        switch (action) {
+            case "list": {
+                List<EmployeeDTO> employeeList = employeeDAO.selectAllEmployees();
+                request.setAttribute("employeeList", employeeList);
+                // ✨ 수정된 부분: 올바른 JSP 파일명으로 경로 변경
+                forwardPath = "/employee_list.jsp"; 
+                break;
+            }
+
+            case "detail": {
+                String empId = request.getParameter("empId");
+                EmployeeDTO employee = employeeDAO.selectEmployeeById(empId);
+                request.setAttribute("employee", employee);
+                // (필요시 employee_detail.jsp 생성 후 사용)
+                forwardPath = "/employee_detail.jsp"; 
+                break;
+            }
+            
+            case "edit": {
+                String empId = request.getParameter("empId");
+                // DAO를 통해 직원 정보를 가져오는 부분은 JSP가 처리하므로 서블릿에서는 경로만 지정
+                // ✨ 수정된 부분: 우리가 만들었던 등록/수정 통합 폼 페이지로 경로 변경
+                forwardPath = "/employee_form.jsp?empId=" + empId;
+                break;
+            }
+
+            case "insert": {
+                // JSP 폼에서 보낸 정보들을 받습니다.
+                String empId = request.getParameter("empId");
+                String empPw = request.getParameter("empPw");
+                String empName = request.getParameter("empName");
+                String email = request.getParameter("email"); // ✨ 추가된 부분
+                String position = request.getParameter("position");
+                String auth = request.getParameter("auth");
+                
+                // 받은 정보들을 DTO 바구니에 담습니다.
+                EmployeeDTO empDTO = new EmployeeDTO();
+                empDTO.setEmpId(empId);
+                empDTO.setEmpPw(empPw);
+                empDTO.setEmpName(empName);
+                empDTO.setEmail(email); // ✨ 추가된 부분
+                empDTO.setPosition(position);
+                empDTO.setAuth(auth);
+
+                // DAO에게 "DB에 저장해줘!" 라고 명령합니다.
+                employeeDAO.insertEmployee(empDTO);
+                
+                // 처리가 끝나면 목록 페이지로 다시 이동시킵니다.
+                response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
+                return; // sendRedirect 후에는 반드시 return!
+            }
+
+            case "update": {
+                // 수정 폼에서 보낸 정보들을 받습니다.
+                String empId = request.getParameter("empId");
+                String empPw = request.getParameter("empPw");
+                String empName = request.getParameter("empName");
+                String email = request.getParameter("email"); // ✨ 추가된 부분
+                String position = request.getParameter("position");
+                String auth = request.getParameter("auth");
+                
+                // DTO 바구니에 새로 담습니다.
+                EmployeeDTO empDTO = new EmployeeDTO();
+                empDTO.setEmpId(empId);
+                empDTO.setEmpPw(empPw);
+                empDTO.setEmpName(empName);
+                empDTO.setEmail(email); // ✨ 추가된 부분
+                empDTO.setPosition(position);
+                empDTO.setAuth(auth);
+                
+                // DAO에게 "DB 업데이트 해줘!" 라고 명령합니다.
+                employeeDAO.updateEmployee(empDTO);
+                
+                // 처리가 끝나면 목록 페이지로 이동시킵니다.
+                response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
+                return; 
+            }
+
+            case "delete": {
+                String empId = request.getParameter("empId");
+
+                if (empId != null && !empId.trim().isEmpty()) {
+                    employeeDAO.deleteEmployee(empId);
+                }
+                response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
+                return;
+            }
+        }
+
+        if (forwardPath != null) {
+            RequestDispatcher dispatcher = request.getRequestDispatcher(forwardPath);
+            dispatcher.forward(request, response);
+        }
+    }
 }

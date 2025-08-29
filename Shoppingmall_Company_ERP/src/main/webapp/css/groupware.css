@@ -1,0 +1,777 @@
+/* 그룹웨어 페이지 전용 CSS */
+
+/* 그룹웨어 컨테이너 */
+.groupware-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+/* 그룹웨어 섹션 공통 스타일 */
+.groupware-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.groupware-section h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    border-bottom: 2px solid #6c5ce7;
+    padding-bottom: 10px;
+    font-size: 18px;
+}
+
+/* 공지사항 섹션 */
+.notice-section {
+    grid-column: 1 / -1;
+}
+
+.notice-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.notice-form input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.notice-form textarea {
+    flex: 2;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.notice-form button {
+    background: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    height: fit-content;
+}
+
+.notice-form button:hover {
+    background: #4a29a0;
+}
+
+.notice-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notice-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    border-left: 4px solid #6c5ce7;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+}
+
+.notice-item:last-child {
+    border-bottom: none;
+}
+
+.notice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.notice-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.notice-date {
+    color: #666;
+    font-size: 12px;
+}
+
+.notice-content {
+    color: #555;
+    line-height: 1.4;
+}
+
+.notice-author {
+    color: #888;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* 캘린더 섹션 */
+.calendar-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-section th, .calendar-section td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.calendar-section th {
+    background: #6c5ce7;
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-section td {
+    height: 40px;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+.calendar-section td:hover {
+    background: #f0f0f0;
+}
+
+.calendar-section .today {
+    background: #e8f3ff;
+    font-weight: bold;
+}
+
+.calendar-section .other-month {
+    color: #ccc;
+}
+
+/* 할일 목록 섹션 */
+.todo-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.todo-form input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.todo-form button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.todo-form button:hover {
+    background: #218838;
+}
+
+.todo-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.todo-item.completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.todo-text {
+    flex: 1;
+}
+
+.todo-date {
+    color: #666;
+    font-size: 12px;
+}
+
+/* 출퇴근 관리 섹션 */
+.attendance-section {
+    text-align: center;
+}
+
+.attendance-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.attendance-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.checkin-btn {
+    background: #28a745;
+    color: white;
+}
+
+.checkin-btn:hover {
+    background: #218838;
+}
+
+.checkout-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.checkout-btn:hover {
+    background: #c82333;
+}
+
+.attendance-status {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.current-time {
+    font-size: 24px;
+    font-weight: bold;
+    color: #6c5ce7;
+    margin-bottom: 10px;
+}
+
+.attendance-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.attendance-info div {
+    text-align: center;
+}
+
+.attendance-info strong {
+    display: block;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+/* 메신저 섹션 */
+.messenger-section {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 70%;
+}
+
+.message.sent {
+    background: #6c5ce7;
+    color: white;
+    margin-left: auto;
+    text-align: right;
+}
+
+.message.received {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+.message.unread {
+    border: 2px solid #ffc107;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.message-content {
+    word-break: break-word;
+    margin: 5px 0;
+}
+
+.message-info {
+    font-size: 0.8em;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.message-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.message-actions button {
+    padding: 2px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.reply-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.read-mark {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7em;
+    margin-left: 5px;
+}
+
+.messenger-form {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+
+#messageReceiver {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.messenger-form button {
+    padding: 8px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.messenger-form button:hover {
+    background-color: #0056b3;
+}
+
+/* 캘린더 스타일 */
+#calendar {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+#calendar th {
+    background: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#calendar td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    height: 40px;
+    position: relative;
+}
+
+#calendar td:hover {
+    background: #f8f8f8;
+}
+
+#calendar .today {
+    background: #e8f4ff;
+    font-weight: bold;
+}
+
+#calendar .other-month {
+    color: #ccc;
+    background: #fafafa;
+}
+
+#calendar .has-events {
+    position: relative;
+}
+
+#calendar .has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #4CAF50;
+    border-radius: 0;
+}
+
+/* 일정 입력 모달 */
+.event-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.event-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.event-form h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.event-form input[type="text"],
+.event-form textarea,
+.event-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.event-form textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.event-form input[type="time"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.event-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.event-form .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.event-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.event-form button:first-child {
+    background: #4CAF50;
+    color: white;
+}
+
+.event-form button:last-child {
+    background: #f44336;
+    color: white;
+}
+
+.event-form button:hover {
+    opacity: 0.9;
+}
+
+/* 일정 종류별 색상 */
+.event-PERSONAL { background-color: #e3f2fd; }
+.event-MEETING { background-color: #fff3e0; }
+.event-HOLIDAY { background-color: #f3e5f5; }
+.event-COMPANY { background-color: #e8f5e9; }
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .groupware-container {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+    }
+    
+    .notice-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .attendance-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .attendance-info {
+        grid-template-columns: 1fr;
+    }
+    
+}
+
+/* 날짜와 버튼을 묶는 그룹 스타일 */
+.notice-meta {
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 15px; /* 날짜와 버튼 사이 간격 */
+}
+
+/* 공지사항 액션 버튼들 컨테이너 */
+.notice-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 수정 버튼 스타일 */
+.edit-notice-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 50px;
+    transition: background-color 0.2s ease;
+}
+
+.edit-notice-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 삭제 버튼 스타일 */
+.delete-notice-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 50px;
+    transition: background-color 0.2s ease;
+}
+
+.delete-notice-btn:hover {
+    background-color: #c82333;
+}
+
+/* 버튼 공통 스타일 개선 */
+.edit-notice-btn,
+.delete-notice-btn {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    min-width: 50px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.edit-notice-btn:active,
+.delete-notice-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 팝업창 전용 스타일 */
+.popup-body {
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.popup-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.popup-container h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #6c5ce7;
+    padding-bottom: 10px;
+}
+
+/* 팝업창 전용 폼 스타일 */
+.popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-form .form-group {
+    margin-bottom: 15px;
+}
+
+.popup-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.popup-form input[type="text"], 
+.popup-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.popup-form textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+}
+
+.popup-form .button-group {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.popup-form .save-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+    transition: background-color 0.2s ease;
+}
+
+.popup-form .save-btn:hover {
+    background-color: #0056b3;
+}
+
+.popup-form .cancel-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+    transition: background-color 0.2s ease;
+}
+
+.popup-form .cancel-btn:hover {
+    background-color: #545b62;
+}
+
+/* 팝업창 반응형 디자인 */
+@media (max-width: 600px) {
+    .popup-container {
+        margin: 10px;
+        padding: 20px;
+        max-width: none;
+    }
+    
+    .popup-form .button-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .popup-form .save-btn,
+    .popup-form .cancel-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}

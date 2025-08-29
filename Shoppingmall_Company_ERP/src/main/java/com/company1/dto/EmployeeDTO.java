@@ -1,47 +1,71 @@
 package com.company1.dto;
 
 public class EmployeeDTO {
-    private String empId;       // 직원 아이디
-    private String empPw;       // 비밀번호
-    private String empName;     // 이름
-    private String position;    // 직급
-    private String auth;        // 권한 ('admin' 또는 'user')
+    private String empId;      // 직원 로그인 ID
+    private String empPw;      // 비밀번호
+    private String empName;    // 직원명
+    private String email;      // 이메일
+    private String position;   // 직책
+    private String auth;       // 권한 ('admin' 또는 'user')
     
+    // 기본 생성자
+    public EmployeeDTO() {}
     
-    // Getters and Setters ... (private 처리된 내용을 빼서 사용하기위해 만듬)
+    // 매개변수 생성자
+    public EmployeeDTO(String empId, String empName, String email, String position, String auth) {
+        this.empId = empId;
+        this.empName = empName;
+        this.email = email;
+        this.position = position;
+        this.auth = auth;
+    }
     
-    // Getter, Setter 자동 만들기 : 마우스 오른쪽버튼(클릭) -> Source -> Generate Getters and Satters -> Select all 선택
+    // Getters and Setters
+    public String getEmpId() {
+        return empId;
+    }
     
-	public String getEmpId() {
-		return empId;
-	}
-	public void setEmpId(String empId) {
-		this.empId = empId;
-	}
-	public String getEmpPw() {
-		return empPw;
-	}
-	public void setEmpPw(String empPw) {
-		this.empPw = empPw;
-	}
-	public String getEmpName() {
-		return empName;
-	}
-	public void setEmpName(String empName) {
-		this.empName = empName;
-	}
-	public String getPosition() {
-		return position;
-	}
-	public void setPosition(String position) {
-		this.position = position;
-	}
-	public String getAuth() {
-		return auth;
-	}
-	public void setAuth(String auth) {
-		this.auth = auth;
-	}
-
-   
+    public void setEmpId(String empId) {
+        this.empId = empId;
+    }
+    
+    public String getEmpPw() {
+        return empPw;
+    }
+    
+    public void setEmpPw(String empPw) {
+        this.empPw = empPw;
+    }
+    
+    public String getEmpName() {
+        return empName;
+    }
+    
+    public void setEmpName(String empName) {
+        this.empName = empName;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public String getPosition() {
+        return position;
+    }
+    
+    public void setPosition(String position) {
+        this.position = position;
+    }
+    
+    public String getAuth() {
+        return auth;
+    }
+    
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
 }

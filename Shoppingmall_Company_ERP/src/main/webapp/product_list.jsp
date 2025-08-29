@@ -1,205 +1,203 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="com.company1.DBManager" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // JSP 직접 접근 시 서블릿으로 리다이렉트 (리다이렉션 루프 방지)
+    if (request.getAttribute("products") == null && "GET".equalsIgnoreCase(request.getMethod())) {
+        response.sendRedirect(request.getContextPath() + "/product?action=list");
+        return;
+    }
+%>
+<%@ page import="java.util.List, com.company1.dto.ProductDTO, java.text.NumberFormat" %>
 
 <%
-request.setCharacterEncoding("UTF-8");
+    // 서블릿에서 전달된 값
+    List<ProductDTO> products = (List<ProductDTO>) request.getAttribute("products");
+    String searchValue = (String) request.getAttribute("search");
+    if (searchValue == null) searchValue = "";
 
-// 페이지네이션 및 검색 기능을 위한 변수 설정
-int currentPage = 1;
-int pageSize = 10; // 한 페이지당 표시 수
-String search = request.getParameter("search");
+    Integer currentPageObj = (Integer) request.getAttribute("currentPage");
+    int currentPage = (currentPageObj != null) ? currentPageObj : 1;
 
-if(request.getParameter("page") != null) {
-    currentPage = Integer.parseInt(request.getParameter("page"));
-}
-int startRow = (currentPage - 1) * pageSize;
+    Integer recordsPerPageObj = (Integer) request.getAttribute("recordsPerPage");
+    int recordsPerPage = (recordsPerPageObj != null) ? recordsPerPageObj : 10;
 
-Connection conn = null;
-PreparedStatement pstmt = null;
-ResultSet rs = null;
-PreparedStatement pstmtCount = null;
-ResultSet rsCount = null;
+    Integer noOfRecordsObj = (Integer) request.getAttribute("noOfRecords");
+    int noOfRecords = (noOfRecordsObj != null) ? noOfRecordsObj : 0;
 
-int totalRows = 0;
-boolean hasData = false;
+    Integer noOfPagesObj = (Integer) request.getAttribute("noOfPages");
+    int noOfPages = (noOfPagesObj != null) ? noOfPagesObj : 1;
 
-try {
-    conn = DBManager.getDBConnection();
-
-    // 총 상품 수 (검색 포함) - Oracle 문법 사용
-    String countSql = "SELECT COUNT(*) FROM PRODUCTS";
-    if(search != null && !search.isEmpty()) {
-        countSql += " WHERE PNAME LIKE ?";
+    // 통계 계산
+    int totalProducts = 0;
+    double totalValue = 0;
+    int lowStockCount = 0;
+    if (products != null) {
+        totalProducts = noOfRecords;
+        for (ProductDTO product : products) {
+            totalValue += (product.getPrice() * product.getStock());
+            if (product.getStock() < 10) lowStockCount++;
+        }
     }
-    pstmtCount = conn.prepareStatement(countSql);
-    if(search != null && !search.isEmpty()) {
-        pstmtCount.setString(1, "%" + search + "%");
-    }
-    rsCount = pstmtCount.executeQuery();
-    if(rsCount.next()) totalRows = rsCount.getInt(1);
-    
-    // 첫 번째 PreparedStatement 정리
-    if(rsCount != null) rsCount.close();
-    if(pstmtCount != null) pstmtCount.close();
 
-    // 상품 조회 (검색 + 페이징) - Oracle 문법 사용
-    String sql = "SELECT * FROM (SELECT ROWNUM rnum, p.* FROM (SELECT * FROM PRODUCTS";
-    if(search != null && !search.isEmpty()) {
-        sql += " WHERE PNAME LIKE ?";
-    }
-    sql += " ORDER BY PID ASC) p WHERE ROWNUM <= ?) WHERE rnum > ?";
-
-    pstmt = conn.prepareStatement(sql);
-    int idx = 1;
-    if(search != null && !search.isEmpty()) {
-        pstmt.setString(idx++, "%" + search + "%");
-    }
-    pstmt.setInt(idx++, startRow + pageSize);
-    pstmt.setInt(idx++, startRow);
-
-    rs = pstmt.executeQuery();
+    NumberFormat formatter = NumberFormat.getNumberInstance();
+    String ctx = request.getContextPath();
 %>
+
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>상품 목록</title>
-
-<link rel="stylesheet" type="text/css" href="css/main.css">
+<title>상품 관리 시스템</title>
+<link rel="stylesheet" href="<%= ctx %>/css/common.css">
+<link rel="stylesheet" href="<%= ctx %>/css/product.css">
 </head>
 <body>
+    <%@ include file="common-jsp/header.jsp" %>
 
-<!-- 헤더 포함 -->
-<%@ include file="common-jsp/header.jsp" %>
+    <div class="container">
+        <!-- 통계 -->
+        <div class="stats product-stats">
+            <div class="stat-item">
+                <div class="stat-number"><%= totalProducts %></div>
+                <div class="stat-label">전체 상품 수</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number"><%= lowStockCount %></div>
+                <div class="stat-label">재고 부족 상품</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">₩<%= formatter.format(totalValue) %></div>
+                <div class="stat-label">총 상품 가치</div>
+            </div>
+        </div>
 
-<div class="container">
-    <h1>상품 목록</h1>
+        <!-- 등록 폼 -->
+        <div class="product-form">
+            <h2>📦 신규 상품 등록</h2>
+            <form action="<%= ctx %>/product" method="post">
+                <input type="hidden" name="action" value="insert">
+                <div class="product-form-row">
+                    <div class="form-group">
+                        <label for="pname">상품명:</label>
+                        <input type="text" id="pname" name="pname" required placeholder="상품명을 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">가격:</label>
+                        <input type="number" id="price" name="price" min="0" step="100" required placeholder="가격(원)">
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">재고:</label>
+                        <input type="number" id="stock" name="stock" min="0" required placeholder="재고 수량">
+                    </div>
+                    <div class="form-actions">
+                        <input type="submit" value="✅ 상품 등록">
+                    </div>
+                </div>
+            </form>
+        </div>
 
-    <!-- 메시지 표시 -->
-    <%
-    String message = request.getParameter("message");
-    String error = request.getParameter("error");
-    if (message != null) {
-        if ("updated".equals(message)) {
-            out.println("<div class='message success'>상품이 성공적으로 수정되었습니다.</div>");
-        } else if ("deleted".equals(message)) {
-            out.println("<div class='message success'>상품이 성공적으로 삭제되었습니다.</div>");
-        } else if ("added".equals(message)) {
-            out.println("<div class='message success'>상품이 성공적으로 추가되었습니다.</div>");
-        }
-    }
-    if (error != null) {
-        if ("notfound".equals(error)) {
-            out.println("<div class='message error'>해당 상품을 찾을 수 없습니다.</div>");
-        } else if ("hasorders".equals(error)) {
-            String pid = request.getParameter("pid");
-            out.println("<div class='message error'>⚠️ 해당 상품은 주문 내역이 있어 삭제할 수 없습니다.</div>");
-            out.println("<div class='message error' style='font-size: 12px; margin-top: 5px;'>주문 내역을 먼저 처리한 후 삭제해주세요. (상품번호: " + pid + ")</div>");
-        } else if ("db".equals(error)) {
-            String detail = request.getParameter("detail");
-            out.println("<div class='message error'>데이터베이스 오류가 발생했습니다.</div>");
-            if (detail != null) {
-                out.println("<div class='message error' style='font-size: 12px; margin-top: 5px;'>상세 오류: " + detail + "</div>");
-            }
-        } else if ("invalid".equals(error)) {
-            out.println("<div class='message error'>잘못된 요청입니다.</div>");
-        }
-    }
-  
-    %>
+        <!-- 검색 -->
+        <div class="search-box">
+            <form method="get" action="<%= ctx %>/product">
+                <input type="hidden" name="action" value="search">
+                <input type="text" name="search" value="<%= searchValue %>" class="search-input" placeholder="상품명을 입력하세요">
+                <button type="submit" class="search-button">검색</button>
+                <a href="<%= ctx %>/product?action=list" class="reset-button">초기화</a>
+            </form>
+        </div>
 
-    <!-- 검색 -->
-  	<div class="search-box">
-    <form method="get" action="product_list.jsp">
-        <input type="text" name="search" value="<%= (search != null) ? search : "" %>" placeholder="상품명 검색" class="search-input">
-        <input type="submit" value="검색" class="search-button">
-        <% if(search != null && !search.isEmpty()) { %>
-            <a href="product_list.jsp" class="reset-button">전체보기</a>
-        <% } %>
-    </form>
-	</div>
+        <!-- 목록 -->
+        <div class="list-section">
+            <h2>📦 상품 목록</h2>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>상품명</th>
+                        <th>가격</th>
+                        <th>재고</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <%
+                    if (products != null && !products.isEmpty()) {
+                        int startNo = (currentPage - 1) * recordsPerPage + 1;
+                        for (ProductDTO product : products) {
+                            String stockClass = product.getStock() < 10 ? "low" :
+                                                (product.getStock() < 50 ? "medium" : "high");
+                %>
+                    <tr>
+                        <td class="row-number"><%= startNo++ %></td>
+                        <td class="product-name"><strong><%= product.getPname() %></strong></td>
+                        <td class="product-price">₩<%= formatter.format(product.getPrice()) %></td>
+                        <td class="product-stock <%= stockClass %>"><%= product.getStock() %>개</td>
+                        <td class="product-actions">
+                            <a href="<%= ctx %>/product?action=edit&pid=<%= product.getPid() %>" class="btn-edit">✏️ 수정</a>
+                            <a href="<%= ctx %>/product?action=delete&pid=<%= product.getPid() %>" class="btn-delete" onclick="return confirm('정말로 삭제하시겠습니까?');">🗑️ 삭제</a>
+                            <!-- 방법 B: 팝업 오픈 -->
+                            <a href="javascript:void(0)" onclick="openProductDetails(<%= product.getPid() %>)">🔎 상세</a>
+                        </td>
+                    </tr>
+                <%
+                        }
+                    } else {
+                %>
+                    <tr>
+                        <td colspan="5" class="no-data">📭 검색 결과가 없거나 등록된 상품이 없습니다.</td>
+                    </tr>
+                <%
+                    }
+                %>
+                </tbody>
+            </table>
 
-    <table class="product-table">
-    <thead>
-    <tr>
-        <th>상품번호</th>
-        <th>상품명</th>
-        <th>가격</th>
-        <th>재고</th>
-        <th>관리</th>
-    </tr>
-    </thead>
-    <tbody>
-    <%
-    int displayNumber = (currentPage - 1) * pageSize; // 페이징을 고려한 시작 번호
-    while(rs.next()) {
-        hasData = true;
-        displayNumber++; // 1부터 시작하는 연속 번호
-    %>
-    <tr>
-        <td><%= displayNumber %></td>
-        <td><%= rs.getString("PNAME") %></td>
-        <td><%= String.format("%,d", rs.getInt("PRICE")) %>원</td>
-        <td><%= rs.getInt("STOCK") %>개</td>
-        <td>
-            <a href="product_edit.jsp?pid=<%= rs.getInt("PID") %>" class="btn-small">수정</a>
-            <a href="product_delete.jsp?pid=<%= rs.getInt("PID") %>" 
-               class="btn-small btn-danger" 
-               onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
-        </td>
-    </tr>
-    <%
-    }
-    
-    if(!hasData) {
-    %>
-    <tr>
-        <td colspan="5">
-            <% if(search != null && !search.isEmpty()) { %>
-                검색 결과가 없습니다.
-            <% } else { %>
-                등록된 상품이 없습니다. <a href="product_add.jsp" class="btn">첫 번째 상품 추가하기</a>
+            <%
+                int pageGroup = 5;
+                int startPage = ((currentPage - 1) / pageGroup) * pageGroup + 1;
+                int endPage = Math.min(startPage + pageGroup - 1, noOfPages);
+                if (noOfPages > 0) {
+            %>
+            <div class="pagination">
+                <% if (startPage > pageGroup) { %>
+                <a class="page-link"
+                   href="<%= ctx %>/product?action=<%= searchValue.isEmpty() ? "list" : "search" %>&page=<%= startPage - pageGroup %><%= searchValue.isEmpty() ? "" : "&search=" + java.net.URLEncoder.encode(searchValue, "UTF-8") %>">&laquo;</a>
+                <% } %>
+
+                <% for (int i = startPage; i <= endPage; i++) { %>
+                <a class="page-link <%= (i == currentPage) ? "active" : "" %>"
+                   href="<%= ctx %>/product?action=<%= searchValue.isEmpty() ? "list" : "search" %>&page=<%= i %><%= searchValue.isEmpty() ? "" : "&search=" + java.net.URLEncoder.encode(searchValue, "UTF-8") %>"><%= i %></a>
+                <% } %>
+
+                <% if (endPage < noOfPages) { %>
+                <a class="page-link"
+                   href="<%= ctx %>/product?action=<%= searchValue.isEmpty() ? "list" : "search" %>&page=<%= startPage + pageGroup %><%= searchValue.isEmpty() ? "" : "&search=" + java.net.URLEncoder.encode(searchValue, "UTF-8") %>">&raquo;</a>
+                <% } %>
+            </div>
+
+            <div class="page-info">
+                전체 <%= noOfRecords %>개 항목 중
+                <%= (currentPage-1)*recordsPerPage + 1 %> -
+                <%= Math.min(currentPage*recordsPerPage, noOfRecords) %>
+            </div>
             <% } %>
-        </td>
-    </tr>
-    <%
-    }
-    %>
-    </tbody>
-    </table>
-
-    <!-- 페이징 -->
-    <% if(hasData && totalRows > pageSize) { %> 
-    <div class="pagination">
-    <%
-    int totalPages = (int)Math.ceil((double)totalRows / pageSize);
-    for(int i=1; i<=totalPages; i++) {
-        if(i==currentPage) {
-            out.print("<b>"+i+"</b>");
-        } else {
-            out.print("<a href='product_list.jsp?page="+i+(search!=null?"&search="+search:"")+"'>"+i+"</a>");
-        }
-    }
-    %>
+        </div>
     </div>
-    <% } %>
-</div>
+
+    <!-- 팝업 스크립트 (EL 없이) -->
+    <script>
+      var ctx = '<%= ctx %>';
+      function openProductDetails(pid) {
+        if (!pid || isNaN(pid)) { alert('유효한 상품 ID가 없습니다.'); return; }
+        var url = ctx + '/product_detail.jsp?pid=' + encodeURIComponent(pid);
+        var popup = window.open(url, 'ProductDetails', 'width=600,height=400,scrollbars=yes,resizable=yes');
+        if (popup) popup.focus(); else alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+      }
+    </script>
+
+    <% // 디버깅 로그
+       if (products != null) for (ProductDTO product : products) {
+           System.out.println("[Debug] Product ID: " + product.getPid());
+       }
+    %>
 </body>
 </html>
-<%
-} catch(Exception e) {
-    e.printStackTrace();
-    out.println("<div class='error-message'>데이터베이스 오류가 발생했습니다: " + e.getMessage() + "</div>");
-} finally {
-    try {
-        if(rs != null) rs.close();
-        if(pstmt != null) pstmt.close();
-        if(rsCount != null) rsCount.close();
-        if(pstmtCount != null) pstmtCount.close();
-        if(conn != null) conn.close();
-    } catch(SQLException e) {
-        e.printStackTrace();
-    }
-}
-%>
