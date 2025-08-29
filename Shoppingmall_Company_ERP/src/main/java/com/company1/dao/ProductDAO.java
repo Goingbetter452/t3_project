@@ -92,8 +92,6 @@ public class ProductDAO {
             pstmt.executeUpdate();
         }
     }
-<<<<<<< HEAD
-=======
 
     // 페이징 처리된 상품 목록 조회
     public List<ProductDTO> getAllProducts(int offset, int limit) throws SQLException {
@@ -194,5 +192,4 @@ public class ProductDAO {
                      .replace("_", "\\_");
     }
 
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 }
