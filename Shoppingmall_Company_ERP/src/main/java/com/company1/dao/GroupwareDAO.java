@@ -6,12 +6,9 @@ import java.util.List;
 import com.company1.DBManager;
 import com.company1.dto.NoticeDTO;
 import com.company1.dto.AttendanceDTO;
-<<<<<<< HEAD
-=======
 import com.company1.dto.CalendarDTO;
 import com.company1.dto.MessageDTO;
 import com.company1.dto.TodoDTO;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 
 public class GroupwareDAO {
     
@@ -62,11 +59,6 @@ public class GroupwareDAO {
             pstmt.setString(3, notice.getAuthorId());
             pstmt.setString(4, notice.getAuthorName());
             
-<<<<<<< HEAD
-            int result = pstmt.executeUpdate();
-            return result > 0;
-        } catch (SQLException e) {
-=======
             // 실행 전에 값들 로깅
             System.out.println("Notice Insert 시도: authorId=" + notice.getAuthorId() + 
                              ", authorName=" + notice.getAuthorName() +
@@ -80,7 +72,6 @@ public class GroupwareDAO {
                 System.err.println("FK 제약조건 위반: AUTHOR_ID(" + notice.getAuthorId() + 
                                  ")가 EMPLOYEES 테이블에 존재하지 않습니다.");
             }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
             e.printStackTrace();
             return false;
         }
@@ -375,9 +366,6 @@ public class GroupwareDAO {
         }
         return null;
     }
-<<<<<<< HEAD
-}
-=======
     
     // ===== 캘린더 관련 메서드 =====
     
@@ -1006,4 +994,3 @@ public class GroupwareDAO {
         return null;
     }
 }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
