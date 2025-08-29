@@ -1,17 +1,12 @@
 package com.company1.servlet;
 
 import com.company1.DBManager;
-<<<<<<< HEAD
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-=======
 import com.company1.dao.ProductDAO;
 import com.company1.dto.ProductDTO;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,11 +16,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-<<<<<<< HEAD
-
-public class ProductServlet extends HttpServlet {
-
-=======
 import java.util.List;
 
 
@@ -34,7 +24,6 @@ public class ProductServlet extends HttpServlet {
 
 	private final ProductDAO productDAO = new ProductDAO();
 
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     // Servlet이 처음 로드될 때 초기화합니다.
     public void init() {
         // ProductDAO 의존성 제거
@@ -44,11 +33,6 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-<<<<<<< HEAD
-        String action = request.getParameter("action"); // action 파라미터를 통해 어떤 작업을 수행할지 결정합니다.
-        if (action == null) {
-            action = "list";
-=======
         String pathInfo = request.getPathInfo();
         String action = request.getParameter("action");
         
@@ -63,17 +47,12 @@ public class ProductServlet extends HttpServlet {
             } else {
                 action = "list";  // 기본값
             }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
         }
 
         switch (action) {
             case "list":
-<<<<<<< HEAD
-                listProducts(request, response);
-=======
             case "search":
                 listOrSearchProducts(request, response);
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
                 break;
             case "delete":
                 deleteProduct(request, response);
@@ -82,21 +61,12 @@ public class ProductServlet extends HttpServlet {
                 editProductForm(request, response);
                 break;
             default:
-<<<<<<< HEAD
-                listProducts(request, response);
-                break;
-        }
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-=======
                 listOrSearchProducts(request, response);
                 break;
         }
     }
     // 상품 목록 조회 및 검색 메소드
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
             throws ServletException, IOException {
         String action = request.getParameter("action");
 
@@ -113,32 +83,6 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-<<<<<<< HEAD
-    // Updated database handling to align with OrderServlet
-    private void listProducts(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = DBManager.getDBConnection();
-            String sql = "SELECT pid, pname, price, stock FROM products ORDER BY pname ASC";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            request.setAttribute("productList", rs);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("product_list.jsp");
-            dispatcher.forward(request, response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DBManager.close(rs, pstmt, conn);
-        }
-    }
-
-=======
 	 private void listOrSearchProducts(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -204,7 +148,6 @@ public class ProductServlet extends HttpServlet {
 	}
 
 
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     private void insertProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Connection conn = null;
@@ -229,11 +172,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-<<<<<<< HEAD
-        listProducts(request, response);
-=======
         listOrSearchProducts(request, response);
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     }
 
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
@@ -255,11 +194,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-<<<<<<< HEAD
-        listProducts(request, response);
-=======
         listOrSearchProducts(request, response);
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     }
 
     // 상품 정보를 수정하는 메소드
@@ -289,11 +224,7 @@ public class ProductServlet extends HttpServlet {
             DBManager.close(null, pstmt, conn);
         }
 
-<<<<<<< HEAD
-        listProducts(request, response);
-=======
         listOrSearchProducts(request, response);
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     }
 
     // 상품 수정 폼을 보여주는 메소드
@@ -303,9 +234,6 @@ public class ProductServlet extends HttpServlet {
         response.getWriter().println("<h2>상품 수정 폼</h2>");
         response.getWriter().println("<p>아직 구현되지 않았습니다.</p>");
     }
-<<<<<<< HEAD
-=======
     
     
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 }
