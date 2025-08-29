@@ -49,16 +49,6 @@ public class LoginServlet extends HttpServlet {
 		 if(empDTO != null) { // 로그인 성공! (null이 아니면 회원정보가 존재한다는 뜻임)
 		    System.out.println("로그인 성공: " + empDTO.getEmpName() + "님 환영합니다.");
 		    
-<<<<<<< HEAD
-		 // 세션(Session)이라는 서버의 개인 사물함에 로그인 정보를 저장   
-		 jakarta.servlet.http.HttpSession session = request.getSession();
-		 session.setAttribute("loginUser", empDTO); 	// "loginUser"라는 이름표로 DTO 통째로 저장
-		 
-		 
-		 // 메인 페이지로 이동하기(메인페이지 이름 index.jsp로 만들었는지 이름 잘 확인해보기!)
-		 response.sendRedirect("index.jsp");
-		 
-=======
 		    // 세션에 필요한 정보들을 개별적으로 저장
 		    HttpSession session = request.getSession();
 		    session.setAttribute("loginUser", empDTO.getEmpId());    // ID만 문자열로 저장
@@ -68,7 +58,6 @@ public class LoginServlet extends HttpServlet {
 		    // 메인 페이지로 이동
 		    response.sendRedirect("index.jsp");
 		    
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 		 } else {	// 로그인 실패! (null이면 회원정보가 없다는 뜻)
 			 System.out.println("로그인 실패: 아이디 또는 비밀버호를 다시 확인부탁드립니다.");
 			 
