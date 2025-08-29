@@ -7,137 +7,20 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
-<<<<<<< HEAD
-import jakarta.servlet.annotation.*;
-=======
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.company1.dao.EmployeeDAO;
 import com.company1.dto.EmployeeDTO;
 
-<<<<<<< HEAD
-/**
- * 직원(Employee) 관련 모든 요청을 처리하는 프론트 컨트롤러 서블릿입니다.
- * URL 매핑: /EmployeeServlet
- */
-
-
-
-@WebServlet("/employee")
-
-public class EmployeeServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-       
-=======
 @WebServlet("/employee")
 public class EmployeeServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
     public EmployeeServlet() {
         super();
     }
 
-<<<<<<< HEAD
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		actionDo(request, response);
-	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");		// 한글 깨짐 방지
-		actionDo(request, response);
-	}
-	
-	private void actionDo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    
-	    // 'action' 파라미터를 기준으로 로직을 통일합니다.
-	    String action = request.getParameter("action");
-	    if (action == null) {
-	        action = "list"; // 파라미터가 없으면 기본값은 'list'
-	    }
-
-	    EmployeeDAO employeeDAO = new EmployeeDAO();
-	    String forwardPath = null; // forward할 경로가 있을 때만 사용하도록 null로 초기화
-
-	    switch (action) {
-	        case "list":
-	            // 직원 목록 조회
-	            List<EmployeeDTO> employeeList = employeeDAO.selectAllEmployees();
-	            request.setAttribute("employeeList", employeeList);
-	            forwardPath = "/employee_list.jsp"; // 결과를 보여줄 JSP 경로를 정확히 지정
-	            break;
-
-	        case "form":
-	            // 직원 등록/수정 폼으로 이동
-	            // TODO: 수정 로직 구현
-	            forwardPath = "/employee_form.jsp";
-	            break;
-
-	        case "insert":
-	            // 직원 등록 처리
-	            String empId = request.getParameter("empId");
-	            String empPw = request.getParameter("empPw");
-	            String empName = request.getParameter("empName");
-	            String position = request.getParameter("position");
-	            String auth = request.getParameter("auth");
-	            
-	            // 유효성 검사... (기존 코드와 동일)
-	            if (empId == null || empId.trim().isEmpty() || empPw == null || empPw.trim().isEmpty()) {
-	                response.sendRedirect(request.getContextPath() + "/employee_form.jsp?error=empty_data");
-	                return;
-	            }
-	            // ... 나머지 유효성 검사 ...
-
-	            EmployeeDTO empDTO = new EmployeeDTO();
-	            empDTO.setEmpId(empId);
-	            empDTO.setEmpPw(empPw);
-	            empDTO.setEmpName(empName);
-	            empDTO.setPosition(position);
-	            empDTO.setAuth(auth);
-	            
-	            employeeDAO.insertEmployee(empDTO);
-	            
-	            // sendRedirect 시에는 contextPath를 포함하는 것이 안전합니다.
-	            response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
-	            return; // redirect 후에는 메소드 종료
-
-	        case "update":
-	            // 직원 수정 처리
-	            System.out.println("직원 수정 처리");
-	            response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
-	            return;
-
-	        case "delete":
-	            // 1. 삭제할 직원의 ID를 요청(request)에서 받아옵니다.
-	            empId = request.getParameter("empId"); 
-	            
-	            // (선택사항) empId가 제대로 넘어왔는지 확인하는 방어 코드
-	            if (empId != null && !empId.trim().isEmpty()) {
-	                
-	                // 2. DAO 객체에게 받아온 ID를 전달하며 삭제를 명령합니다! (가장 중요!)
-	                employeeDAO.deleteEmployee(empId); 
-	                
-	                
-	                System.out.println(empId + " 직원 정보가 삭제되었습니다."); // 확인용 로그
-	            } else {
-	                System.out.println("삭제할 직원 ID가 없습니다."); // 오류 로그
-	            }
-
-	            // 3. 처리가 끝난 후, 최신 목록 페이지로 이동합니다.
-	            response.sendRedirect(request.getContextPath() + "/EmployeeServlet?action=list");
-	            return;
-	    }
-	    
-	    // forwardPath가 설정된 경우에만 forward를 실행합니다.
-	    if (forwardPath != null) {
-	        RequestDispatcher dispatcher = request.getRequestDispatcher(forwardPath);
-	        dispatcher.forward(request, response);
-	    }
-	}
-}
-=======
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         actionDo(request, response);
     }
@@ -258,4 +141,3 @@ public class EmployeeServlet extends HttpServlet {
         }
     }
 }
->>>>>>> cddda14998e5a164e841ccb98ce4bf191064d936
