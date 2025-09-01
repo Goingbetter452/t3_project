@@ -1,0 +1,27 @@
+# Eclipse
+.metadata/
+.project
+.classpath
+.settings/
+
+# Build directories
+build/
+target/
+bin/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
