@@ -1,5 +1,5 @@
 language: 
-- java, jsp, servlet, jquery, sql
+- java, jsp, servlet, jquery, sql, jdbc
 - html, css, javascript
 
   <br>
